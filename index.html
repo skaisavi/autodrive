@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoDrive — Find Your Perfect Car</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ALERT BANNER -->
+<div class="alert-banner" id="alertBanner">
+  <span>🔥</span>
+  <span>Limited time: 0% APR finance available on selected 2024 models. <strong>View Deals →</strong></span>
+  <span class="close-alert" onclick="dismissAlert()">✕</span>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo" onclick="navigate('home')">
+    <div class="logo-icon">🚗</div>
+    Auto<span>Drive</span>
+  </div>
+
+  <div class="header-search">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="headerSearch" placeholder="Search make, model, year..." autocomplete="off">
+    <span class="search-clear" onclick="document.getElementById('headerSearch').value='';doSearch('')">✕</span>
+  </div>
+
+  <nav class="header-nav" id="headerNav">
+    <a data-page="home" onclick="navigate('home')">Home</a>
+    <a data-page="browse" onclick="navigate('browse')">Browse</a>
+    <a data-page="compare" onclick="navigate('compare')">Compare</a>
+    <a data-page="favorites" onclick="navigate('favorites')">Saved</a>
+    <a data-page="account" id="accountNavLink" onclick="navigate('account')" style="display:none">My Account</a>
+  </nav>
+
+  <div class="header-actions">
+    <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+    <button class="btn-icon" onclick="openModal('alertModal')" title="Set price alert">🔔</button>
+    <button class="btn-icon" onclick="navigate('compare')" title="Compare cars">
+      ⚖️<span class="badge" id="compareBadge" style="display:none">0</span>
+    </button>
+    <button class="btn-icon" onclick="navigate('favorites')" title="Saved cars">
+      ❤️<span class="badge fav-badge" style="display:none">0</span>
+    </button>
+
+    <!-- Sell button (shown when logged in) -->
+    <button class="btn-sell" id="sellBtn" onclick="openModal('sellModal')" style="display:none" title="Post your car for sale">+ Sell</button>
+
+    <!-- Sign in (logged out) -->
+    <button class="btn-signin" id="signInBtn" onclick="openModal('loginModal')">Sign In</button>
+
+    <!-- User menu (logged in) -->
+    <div class="user-menu" id="userMenuBtn" style="display:none">
+      <button class="user-avatar-btn" onclick="toggleUserMenu()">
+        <span class="user-initial" id="userInitial">U</span>
+        <span class="user-chevron">▾</span>
+      </button>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-item" onclick="navigate('account');toggleUserMenu()">👤 My Account</div>
+        <div class="user-dropdown-item" onclick="openModal('sellModal');toggleUserMenu()">🚗 Post a Car</div>
+        <div class="user-dropdown-item" onclick="navigate('favorites');toggleUserMenu()">❤️ Saved Cars</div>
+        <div class="user-dropdown-divider"></div>
+        <div class="user-dropdown-item danger" onclick="logout()">↩ Sign Out</div>
+      </div>
+    </div>
+
+    <button class="hamburger" onclick="toggleMenu()" title="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<!-- ===================== HOME PAGE ===================== -->
+<div id="page-home" class="page">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <div class="hero-tag">✨ Over 50,000 Vehicles Available</div>
+      <h1>Find Your <span>Dream Car</span><br>Drive It Home Today</h1>
+      <p>Search new, used & certified pre-owned vehicles from thousands of dealers nationwide.</p>
+
+      <div class="hero-search">
+        <div class="search-tabs">
+          <div class="search-tab active" onclick="setHeroTab(this,'new')">New Cars</div>
+          <div class="search-tab" onclick="setHeroTab(this,'used')">Used Cars</div>
+          <div class="search-tab" onclick="setHeroTab(this,'certified')">Certified Pre-Owned</div>
+          <div class="search-tab" onclick="setHeroTab(this,'electric')">Electric</div>
+        </div>
+        <div class="search-fields">
+          <div class="field-group">
+            <label>Make</label>
+            <select id="heroMake">
+              <option value="">Any Make</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Body Type</label>
+            <select id="heroType">
+              <option value="">Any Type</option>
+              <option>Sedan</option>
+              <option>SUV</option>
+              <option>Truck</option>
+              <option>Coupe</option>
+              <option>Hatchback</option>
+              <option>Convertible</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Max Price</label>
+            <select id="heroMaxPrice">
+              <option value="">Any Price</option>
+              <option value="25000">Under £25,000</option>
+              <option value="50000">Under £50,000</option>
+              <option value="75000">Under £75,000</option>
+              <option value="100000">Under £100,000</option>
+              <option value="150000">Under £150,000</option>
+            </select>
+          </div>
+          <div class="field-group">
+            <label>Postcode</label>
+            <input type="text" id="heroZip" placeholder="SW1A 1AA" maxlength="8">
+          </div>
+        </div>
+        <button class="btn-search" onclick="heroSearch()">
+          🔍 Search
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <span class="num" data-count="50000">50K+</span>
+        <span class="label">Vehicles</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">8,200+</span>
+        <span class="label">Dealers</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">4.9★</span>
+        <span class="label">Avg Rating</span>
+      </div>
+      <div class="hero-stat">
+        <span class="num">98%</span>
+        <span class="label">Satisfaction</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- BROWSE BY CATEGORY -->
+  <section class="section-sm">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>Browse by Category</h2>
+          <p>Find the perfect vehicle type for your lifestyle</p>
+        </div>
+      </div>
+      <div class="categories-scroll">
+        <div class="cat-pill active" data-cat="All" onclick="goToBrowse('All')"><span>🚗</span> All Cars</div>
+        <div class="cat-pill" data-cat="Performance" onclick="goToBrowse('Performance')"><span>🏎️</span> Performance</div>
+        <div class="cat-pill" data-cat="Electric" onclick="goToBrowse('Electric')"><span>⚡</span> Electric</div>
+        <div class="cat-pill" data-cat="SUVs" onclick="goToBrowse('SUVs')"><span>🚙</span> SUVs</div>
+        <div class="cat-pill" data-cat="Trucks" onclick="goToBrowse('Trucks')"><span>🛻</span> Trucks</div>
+        <div class="cat-pill" data-cat="Luxury" onclick="goToBrowse('Luxury')"><span>💎</span> Luxury</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURED LISTINGS -->
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>Featured Listings</h2>
+          <p>Handpicked deals updated daily</p>
+        </div>
+        <span class="see-all" onclick="navigate('browse')">View All Cars →</span>
+      </div>
+      <div class="cars-grid" id="featuredGrid"></div>
+    </div>
+  </section>
+
+  <!-- RECENTLY VIEWED (hidden until populated) -->
+  <section class="section-sm" id="recentlyViewedSection" style="display:none">
+    <div class="container">
+      <div class="section-header">
+        <div><h2>Recently Viewed</h2><p>Pick up where you left off</p></div>
+        <span class="see-all" onclick="navigate('browse')">Browse All →</span>
+      </div>
+      <div class="cars-grid" id="recentlyViewedGrid"></div>
+    </div>
+  </section>
+
+  <!-- SELL YOUR CAR CTA -->
+  <section class="sell-cta-section">
+    <div class="container">
+      <div class="sell-cta-inner">
+        <div class="sell-cta-text">
+          <div class="hero-tag" style="margin-bottom:16px">🚗 For Sellers</div>
+          <h2>Sell Your Car in as Little as 48 Hours</h2>
+          <p>List for free and reach over 2 million buyers across the UK. No hidden fees, no hassle.</p>
+          <div class="sell-cta-benefits">
+            <div class="sell-benefit">✅ Free listing — always</div>
+            <div class="sell-benefit">✅ 2M+ active buyers</div>
+            <div class="sell-benefit">✅ Manage from your account</div>
+            <div class="sell-benefit">✅ Sell in days, not months</div>
+          </div>
+          <button class="btn-cta sell-cta-btn" onclick="openModal('sellModal')">List Your Car for Free →</button>
+        </div>
+        <div class="sell-cta-stats">
+          <div class="sell-stat-card"><div class="sell-stat-num">£0</div><div class="sell-stat-lbl">Listing fee</div></div>
+          <div class="sell-stat-card"><div class="sell-stat-num">48h</div><div class="sell-stat-lbl">Avg. time to sell</div></div>
+          <div class="sell-stat-card"><div class="sell-stat-num">2M+</div><div class="sell-stat-lbl">Monthly buyers</div></div>
+          <div class="sell-stat-card"><div class="sell-stat-num">4.9★</div><div class="sell-stat-lbl">Seller rating</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ELECTRIC SECTION -->
+  <section class="section" style="background:var(--bg-card);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="container">
+      <div class="section-header">
+        <div>
+          <h2>⚡ Go Electric</h2>
+          <p>The future of driving is here. Zero emissions, maximum performance.</p>
+        </div>
+        <span class="see-all" onclick="goToBrowse('Electric')">All EVs →</span>
+      </div>
+      <div class="cars-grid" id="evGrid"></div>
+    </div>
+  </section>
+
+  <!-- WHY US FEATURES -->
+  <section class="section features-section">
+    <div class="container">
+      <div class="section-header" style="margin-bottom:0">
+        <div>
+          <h2>Why Choose AutoDrive?</h2>
+          <p>The smarter way to buy and sell cars</p>
+        </div>
+      </div>
+      <div class="features-grid">
+        <div class="feature-highlight reveal">
+          <div class="feature-icon-wrap">🔍</div>
+          <h3>Smart Search</h3>
+          <p>AI-powered search finds your perfect match from 50,000+ vehicles instantly.</p>
+        </div>
+        <div class="feature-highlight reveal">
+          <div class="feature-icon-wrap">💰</div>
+          <h3>Best Price Guarantee</h3>
+          <p>Price history tracking ensures you always get a fair deal, every time.</p>
+        </div>
+        <div class="feature-highlight reveal">
+          <div class="feature-icon-wrap">📋</div>
+          <h3>Full History Reports</h3>
+          <p>Free CARFAX® reports with every listing so you know exactly what you're buying.</p>
+        </div>
+        <div class="feature-highlight reveal">
+          <div class="feature-icon-wrap">⚖️</div>
+          <h3>Side-by-Side Compare</h3>
+          <p>Compare up to 3 vehicles simultaneously across every spec and feature.</p>
+        </div>
+        <div class="feature-highlight reveal">
+          <div class="feature-icon-wrap">🔔</div>
+          <h3>Price Drop Alerts</h3>
+          <p>Set alerts for the cars you love and get notified the moment prices drop.</p>
+        </div>
+        <div class="feature-highlight reveal">
+          <div class="feature-icon-wrap">🏦</div>
+          <h3>Instant Financing</h3>
+          <p>Get pre-approved in minutes with our partnered lenders — no hard credit pull.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- LOAN CALCULATOR (Home) -->
+  <section class="calc-section" id="section-calculator">
+    <div class="container">
+      <div class="calc-card">
+        <h2>💰 Payment Calculator</h2>
+        <p>Estimate your monthly payments before you even set foot in a dealership.</p>
+        <div class="calc-grid">
+          <div class="calc-inputs">
+            <div class="calc-field">
+              <label>Vehicle Price</label>
+              <div class="input-prefix" data-prefix="£">
+                <input type="number" id="calcPrice" value="35000" min="0" oninput="updateCalc()">
+              </div>
+            </div>
+            <div class="calc-field">
+              <label>Down Payment</label>
+              <div class="input-prefix" data-prefix="£">
+                <input type="number" id="calcDown" value="5000" min="0" oninput="updateCalc()">
+              </div>
+            </div>
+            <div class="calc-field">
+              <label>Interest Rate (APR %)</label>
+              <input type="number" id="calcRate" value="6.9" step="0.1" min="0" max="30" oninput="updateCalc()">
+            </div>
+            <div class="calc-field">
+              <label>Loan Term</label>
+              <select id="calcTerm" onchange="updateCalc()">
+                <option value="24">24 months (2 years)</option>
+                <option value="36">36 months (3 years)</option>
+                <option value="48">48 months (4 years)</option>
+                <option value="60" selected>60 months (5 years)</option>
+                <option value="72">72 months (6 years)</option>
+                <option value="84">84 months (7 years)</option>
+              </select>
+            </div>
+          </div>
+          <div class="calc-results">
+            <div class="calc-result-main">
+              <div class="result-label">Estimated Monthly Payment</div>
+              <div class="result-value" id="calcMonthly">£545</div>
+              <div class="result-sub">Based on your inputs above</div>
+            </div>
+            <div class="calc-breakdown">
+              <div class="breakdown-item">
+                <div class="b-val" id="calcLoan">£30,000</div>
+                <div class="b-label">Loan Amount</div>
+              </div>
+              <div class="breakdown-item">
+                <div class="b-val" id="calcInterest">£5,700</div>
+                <div class="b-label">Total Interest</div>
+              </div>
+              <div class="breakdown-item">
+                <div class="b-val" id="calcTotal">£35,700</div>
+                <div class="b-label">Total Cost</div>
+              </div>
+            </div>
+            <button class="btn-cta" onclick="navigate('browse')" style="margin-top:4px">
+              Find Cars in This Budget
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRADE-IN ESTIMATOR -->
+  <section class="tradein-section" id="section-tradein">
+    <div class="container">
+      <div class="tradein-card">
+        <h2>🔄 Trade-In Value Estimator</h2>
+        <p>Get an instant estimate for your current vehicle. It takes less than 30 seconds.</p>
+        <div class="tradein-form">
+          <div class="tradein-field">
+            <label>Vehicle Make</label>
+            <select id="tradeMake">
+              <option value="">Select Make</option>
+              <option>BMW</option><option>Tesla</option><option>Toyota</option>
+              <option>Honda</option><option>Ford</option><option>Chevrolet</option>
+              <option>Mercedes-Benz</option><option>Porsche</option><option>Audi</option>
+              <option>Mazda</option><option>Jeep</option><option>Hyundai</option>
+              <option>Kia</option><option>Nissan</option><option>Volkswagen</option>
+            </select>
+          </div>
+          <div class="tradein-field">
+            <label>Year</label>
+            <select id="tradeYear">
+              <option value="">Select Year</option>
+              <option>2024</option><option>2023</option><option>2022</option>
+              <option>2021</option><option>2020</option><option>2019</option>
+              <option>2018</option><option>2017</option><option>2016</option>
+              <option>2015</option><option>2014</option><option>2013</option>
+            </select>
+          </div>
+          <div class="tradein-field">
+            <label>Mileage</label>
+            <input type="number" id="tradeMileage" placeholder="e.g. 45000">
+          </div>
+          <div class="tradein-field">
+            <label>Condition</label>
+            <select id="tradeCondition">
+              <option value="">Select Condition</option>
+              <option value="excellent">Excellent</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+              <option value="poor">Poor</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" style="margin:0 auto;font-size:15px;padding:14px 32px" onclick="estimateTradeIn()">
+          Get My Estimate
+        </button>
+        <div class="tradein-result" id="tradeResult">
+          <div style="font-size:16px;font-weight:700;margin-bottom:4px">Your Estimated Trade-In Value</div>
+          <div class="result-range" id="tradeRange">£0 – £0</div>
+          <p>This is a preliminary estimate. Visit a dealer for an exact appraisal and to apply toward your next purchase.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- NEWSLETTER -->
+  <section class="newsletter-section">
+    <div class="container">
+      <h2>🔔 Never Miss a Deal</h2>
+      <p>Get weekly alerts for the best new listings, price drops, and exclusive offers.</p>
+      <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+        <input type="email" placeholder="Your email address" required>
+        <button type="submit">Subscribe Free</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <div class="logo-icon">🚗</div>
+          Auto<span>Drive</span>
+        </div>
+        <p>The modern way to find, compare, and buy your perfect vehicle. Trusted by over 2 million drivers nationwide.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Browse</h4>
+        <a onclick="goToBrowse('All')">All Vehicles</a>
+        <a onclick="goToBrowse('Electric')">Electric Cars</a>
+        <a onclick="goToBrowse('SUVs')">SUVs & Crossovers</a>
+        <a onclick="goToBrowse('Trucks')">Trucks</a>
+        <a onclick="goToBrowse('Luxury')">Luxury Cars</a>
+        <a onclick="goToBrowse('Performance')">Sports & Performance</a>
+      </div>
+      <div class="footer-col">
+        <h4>Tools</h4>
+        <a onclick="navigate('compare')">Car Comparison</a>
+        <a onclick="openModal('alertModal')">Price Alerts</a>
+        <a onclick="scrollToSection('home','section-calculator')">Payment Calculator</a>
+        <a onclick="scrollToSection('home','section-tradein')">Trade-In Estimator</a>
+        <a onclick="openModal('financingModal')">Financing Pre-Approval</a>
+        <a onclick="openModal('vinModal')">VIN Decoder</a>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <a onclick="openModal('aboutModal')">About Us</a>
+        <a onclick="toast('Visit dealer.autodrive.co.uk to list your inventory.','info','🏢')">For Dealers</a>
+        <a onclick="toast('Contact ads@autodrive.co.uk to advertise with us.','info','📣')">Advertise</a>
+        <a onclick="toast('We\'re hiring! Visit careers.autodrive.co.uk','info','💼')">Careers</a>
+        <a onclick="openModal('privacyModal')">Privacy Policy</a>
+        <a onclick="openModal('termsModal')">Terms of Service</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 AutoDrive. All rights reserved.</span>
+      <div class="footer-social">
+        <a href="https://twitter.com" target="_blank" rel="noopener" title="X / Twitter">𝕏</a>
+        <a href="https://instagram.com" target="_blank" rel="noopener" title="Instagram">📸</a>
+        <a href="https://facebook.com" target="_blank" rel="noopener" title="Facebook">f</a>
+        <a href="https://youtube.com" target="_blank" rel="noopener" title="YouTube">▶</a>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<!-- end home -->
+
+<!-- ===================== BROWSE PAGE ===================== -->
+<div id="page-browse" class="page">
+
+  <div class="browse-layout">
+
+    <!-- SIDEBAR FILTERS -->
+    <aside class="sidebar" id="filterSidebar">
+      <h3>
+        Filters
+        <span class="sidebar-clear" onclick="clearAllFilters()">Clear All</span>
+      </h3>
+
+      <div class="filter-group">
+        <label>Make</label>
+        <select class="filter-select" id="filterMake">
+          <option value="">All Makes</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Body Type</label>
+        <select class="filter-select" id="filterType">
+          <option value="">All Types</option>
+          <option>Sedan</option>
+          <option>Coupe</option>
+          <option>SUV</option>
+          <option>Truck</option>
+          <option>Hatchback</option>
+          <option>Convertible</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Condition</label>
+        <select class="filter-select" id="filterCondition">
+          <option value="">All Conditions</option>
+          <option value="New">New</option>
+          <option value="Used">Used</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Fuel Type</label>
+        <select class="filter-select" id="filterFuel">
+          <option value="">All Fuel Types</option>
+          <option value="Petrol">Petrol</option>
+          <option value="Electric">Electric</option>
+          <option value="Hybrid">Hybrid</option>
+          <option value="Mild Hybrid">Mild Hybrid</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label>Price Range</label>
+        <div class="range-wrap">
+          <div class="range-vals">
+            <span id="priceMinVal">£0</span>
+            <span id="priceMaxVal">£300,000</span>
+          </div>
+          <div class="range-track">
+            <div class="range-fill" id="priceFill"></div>
+            <input type="range" id="priceMin" min="0" max="300000" step="1000" value="0"
+              oninput="updatePriceRange()">
+            <input type="range" id="priceMax" min="0" max="300000" step="1000" value="300000"
+              oninput="updatePriceRange()">
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Max Mileage</label>
+        <div class="range-wrap">
+          <div class="range-vals">
+            <span>0</span>
+            <span id="mileageMaxVal">200K mi</span>
+          </div>
+          <div class="range-track">
+            <div class="range-fill" id="mileageFill" style="left:0;right:0;background:var(--primary)"></div>
+            <input type="range" id="mileageMax" min="0" max="200000" step="5000" value="200000"
+              oninput="updateMileageRange()">
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Special</label>
+        <div class="checkbox-list">
+          <label class="checkbox-item">
+            <input type="checkbox" id="filterEV" onchange="state.filters.isEV=this.checked;state.page_num=1;renderBrowse()">
+            <span>⚡ Electric Only</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="filterHybrid" onchange="state.filters.isHybrid=this.checked;state.page_num=1;renderBrowse()">
+            <span>🔋 Hybrid Only</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="filterAccident" onchange="filterNoAccident(this.checked)">
+            <span>✓ No Accidents</span>
+          </label>
+          <label class="checkbox-item">
+            <input type="checkbox" id="filterCarfax" onchange="filterCarfax(this.checked)">
+            <span>📋 CARFAX Available</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="filter-group">
+        <label>Part Exchange</label>
+        <label class="checkbox-item">
+          <input type="checkbox" id="filterPX" onchange="togglePXFilter(this.checked)">
+          <span>🔄 PX Welcome Only</span>
+        </label>
+        <div class="px-filter-wrap" id="pxFilterWrap" style="display:none">
+          <p style="font-size:12px;color:var(--text-muted);margin:0">Enter your car's details to see listings you qualify for.</p>
+          <div class="px-row">
+            <label>My Car's Make</label>
+            <input type="text" id="pxMyMake" placeholder="e.g. Toyota" oninput="updatePXFilters()">
+          </div>
+          <div class="px-row">
+            <label>My Engine Size (L)</label>
+            <input type="number" id="pxMyEngine" placeholder="e.g. 1.8" step="0.1" min="0" max="10" oninput="updatePXFilters()">
+          </div>
+          <div class="px-row">
+            <label>My Car's Year</label>
+            <input type="number" id="pxMyYear" placeholder="e.g. 2019" min="1990" max="2025" oninput="updatePXFilters()">
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main>
+      <!-- Category pills -->
+      <div class="categories-scroll" style="margin-bottom:16px">
+        <div class="cat-pill active" data-cat="All" onclick="setCatFilter('All')"><span>🚗</span> All</div>
+        <div class="cat-pill" data-cat="Performance" onclick="setCatFilter('Performance')"><span>🏎️</span> Performance</div>
+        <div class="cat-pill" data-cat="Electric" onclick="setCatFilter('Electric')"><span>⚡</span> Electric</div>
+        <div class="cat-pill" data-cat="SUVs" onclick="setCatFilter('SUVs')"><span>🚙</span> SUVs</div>
+        <div class="cat-pill" data-cat="Trucks" onclick="setCatFilter('Trucks')"><span>🛻</span> Trucks</div>
+        <div class="cat-pill" data-cat="Luxury" onclick="setCatFilter('Luxury')"><span>💎</span> Luxury</div>
+      </div>
+
+      <div class="browse-toolbar">
+        <div class="browse-count" id="browseCount"><strong>16</strong> vehicles found</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <button class="btn-icon" onclick="toggleMobileFilters()" style="display:none" id="filterToggle" title="Filters">
+            ⚙️
+          </button>
+          <div class="sort-bar">
+            <label>Sort by:</label>
+            <select class="sort-select" id="sortSelect">
+              <option value="recommended">Recommended</option>
+              <option value="price-low">Price: Low to High</option>
+              <option value="price-high">Price: High to Low</option>
+              <option value="year">Newest First</option>
+              <option value="mileage">Lowest Mileage</option>
+              <option value="rating">Highest Rated</option>
+              <option value="distance">Nearest First</option>
+            </select>
+          </div>
+          <div class="view-toggle">
+            <button class="view-btn active" id="viewGrid" onclick="setView('grid')" title="Grid view">⊞</button>
+            <button class="view-btn" id="viewList" onclick="setView('list')" title="List view">≡</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="activeFilters" class="active-filters"></div>
+
+      <div class="cars-grid" id="carsGrid"></div>
+
+      <div class="pagination" id="pagination"></div>
+    </main>
+
+  </div>
+</div>
+<!-- end browse -->
+
+<!-- ===================== DETAIL PAGE ===================== -->
+<div id="page-detail" class="page">
+
+  <div class="detail-header">
+    <div class="breadcrumb" style="max-width:1200px;margin:0 auto">
+      <a onclick="navigate('home')">Home</a>
+      <span>›</span>
+      <a onclick="navigate('browse')">Browse</a>
+      <span>›</span>
+      <span id="detailBreadcrumb">Vehicle Details</span>
+    </div>
+  </div>
+
+  <div class="detail-layout">
+
+    <!-- LEFT COLUMN -->
+    <div>
+      <!-- Title -->
+      <h1 id="detailTitle" style="font-size:28px;font-weight:900;margin-bottom:4px"></h1>
+      <p id="detailSub" style="color:var(--text-muted);font-size:14px;margin-bottom:20px"></p>
+
+      <!-- Gallery -->
+      <div class="gallery">
+        <div class="gallery-main">
+          <img id="galleryMain" src="" alt="Car">
+          <div class="gallery-prev" onclick="galleryNav(-1)">‹</div>
+          <div class="gallery-next" onclick="galleryNav(1)">›</div>
+        </div>
+        <div class="gallery-thumbs" id="galleryThumbs"></div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="detail-tabs">
+        <div class="detail-tab active" data-tab="specs" onclick="switchTab('specs')">Specs</div>
+        <div class="detail-tab" data-tab="features" onclick="switchTab('features')">Features</div>
+        <div class="detail-tab" data-tab="history" onclick="switchTab('history')">History</div>
+        <div class="detail-tab" data-tab="price" onclick="switchTab('price')">Price History</div>
+      </div>
+
+      <div id="tab-specs" class="tab-content active">
+        <div id="detailSpecs"></div>
+      </div>
+      <div id="tab-features" class="tab-content">
+        <div id="detailFeatures"></div>
+      </div>
+      <div id="tab-history" class="tab-content">
+        <div id="detailHistory"></div>
+      </div>
+      <div id="tab-price" class="tab-content">
+        <div class="chart-wrap">
+          <h4>Price History (Last 5 Months)</h4>
+          <canvas id="priceChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Nearby Similar Cars -->
+      <div style="margin-top:32px">
+        <div class="section-header">
+          <div><h2 style="font-size:20px">Similar Vehicles</h2></div>
+          <span class="see-all" onclick="navigate('browse')">View All →</span>
+        </div>
+        <div class="cars-grid" id="similarGrid" style="grid-template-columns:repeat(auto-fill,minmax(260px,1fr))"></div>
+      </div>
+    </div>
+
+    <!-- RIGHT SIDEBAR -->
+    <div class="detail-sidebar">
+      <div class="price-card">
+        <div class="detail-price" id="detailPrice">£0</div>
+        <div class="detail-price-mo" id="detailMonthly"></div>
+
+        <button class="btn-cta" onclick="openContactModal()">
+          📧 Contact Dealer
+        </button>
+        <button class="btn-cta-outline" onclick="openTestDriveModal()">
+          🚗 Schedule Test Drive
+        </button>
+        <button class="btn-cta-outline" id="detailFavBtn" style="border-color:var(--danger);color:var(--danger)">
+          🤍 Save Car
+        </button>
+        <button class="btn-cta-outline" onclick="addCurrentToCompare()">
+          ⚖️ Add to Compare
+        </button>
+
+        <div class="dealer-card">
+          <h4>🏪 Dealer Information</h4>
+          <div class="dealer-info">
+            <strong id="dealerName"></strong><br>
+            📍 <span id="dealerLocation"></span>
+          </div>
+          <div class="dealer-rating" id="dealerRating"></div>
+        </div>
+
+        <!-- Mini Calculator -->
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
+          <h4 style="font-size:14px;font-weight:700;margin-bottom:12px">💳 Quick Calculator</h4>
+          <div id="detailCalcMonthly" style="background:var(--primary);color:#fff;border-radius:var(--radius);padding:12px;text-align:center;margin-bottom:10px;font-size:20px;font-weight:800"></div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <div>
+              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)">Down Payment</label>
+              <input type="number" id="detailCalcDown" style="width:100%;margin-top:4px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg-input);color:var(--text);font-family:var(--font);font-size:14px;font-weight:600;outline:none" oninput="updateDetailCalc()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)">APR %</label>
+              <input type="number" id="detailCalcRate" value="6.9" step="0.1" style="width:100%;margin-top:4px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg-input);color:var(--text);font-family:var(--font);font-size:14px;font-weight:600;outline:none" oninput="updateDetailCalc()">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)">Loan Term</label>
+              <select id="detailCalcTerm" style="width:100%;margin-top:4px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg-input);color:var(--text);font-family:var(--font);font-size:14px;outline:none;-webkit-appearance:none" onchange="updateDetailCalc()">
+                <option value="36">36 months</option>
+                <option value="48">48 months</option>
+                <option value="60" selected>60 months</option>
+                <option value="72">72 months</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- end detail -->
+
+<!-- ===================== COMPARE PAGE ===================== -->
+<div id="page-compare" class="page">
+  <div class="compare-page">
+    <div class="compare-page-header">
+      <h1>⚖️ Vehicle Comparison</h1>
+      <p>Compare specs side by side. <span class="badge-best">Green = best</span> &nbsp;<span class="badge-worst">Red = lowest</span></p>
+    </div>
+    <div id="compareContent"></div>
+  </div>
+</div>
+
+<!-- ===================== FAVORITES PAGE ===================== -->
+<div id="page-favorites" class="page">
+  <div class="favorites-page">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+      <h1>❤️ Saved Cars</h1>
+      <button class="btn-primary" onclick="navigate('browse')">+ Browse More</button>
+    </div>
+    <p id="favCount" style="color:var(--text-muted);margin-bottom:24px">0 saved cars</p>
+    <div class="cars-grid" id="favoritesGrid"></div>
+  </div>
+</div>
+
+<!-- ===================== ACCOUNT PAGE ===================== -->
+<div id="page-account" class="page">
+  <div class="account-page">
+    <div id="accountContent"></div>
+  </div>
+</div>
+
+<!-- ===================== COMPARE TRAY ===================== -->
+<div class="compare-tray" id="compareTray">
+  <span class="compare-tray-label">⚖️ Compare:</span>
+  <div class="compare-tray-cars" id="trayCarsList"></div>
+  <button class="btn-compare-go" onclick="navigate('compare')">Compare Now</button>
+  <span class="btn-compare-clear" onclick="clearAllCompare()">Clear</span>
+</div>
+
+<!-- ===================== MODALS ===================== -->
+
+<!-- Contact Modal -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('contactModal')">✕</button>
+    <h2>📧 Contact Dealer</h2>
+    <p>Send a message about <strong id="contactCarName">this vehicle</strong></p>
+    <div class="form-field">
+      <label>Your Name</label>
+      <input type="text" placeholder="John Smith">
+    </div>
+    <div class="form-field">
+      <label>Email Address</label>
+      <input type="email" placeholder="john@example.com">
+    </div>
+    <div class="form-field">
+      <label>Phone (optional)</label>
+      <input type="tel" placeholder="(555) 000-0000">
+    </div>
+    <div class="form-field">
+      <label>Message</label>
+      <textarea rows="4" placeholder="I'm interested in this vehicle. Is it still available?"></textarea>
+    </div>
+    <button class="btn-cta" onclick="submitContact()">Send Message</button>
+  </div>
+</div>
+
+<!-- Alert Modal -->
+<div class="modal-overlay" id="alertModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('alertModal')">✕</button>
+    <h2>🔔 Set Price Alert</h2>
+    <p>Get notified when prices drop for vehicles you're watching.</p>
+    <div class="form-field">
+      <label>Vehicle Type</label>
+      <select>
+        <option>Any vehicle</option>
+        <option>BMW M4</option>
+        <option>Tesla Model S</option>
+        <option>Porsche 911</option>
+        <option>Toyota RAV4</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Alert me when price drops below</label>
+      <input type="number" placeholder="e.g. 75000">
+    </div>
+    <div class="form-field">
+      <label>Email Address</label>
+      <input type="email" placeholder="your@email.com">
+    </div>
+    <button class="btn-cta" onclick="submitAlert()">Set Alert 🔔</button>
+  </div>
+</div>
+
+<!-- Test Drive Modal -->
+<div class="modal-overlay" id="testDriveModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('testDriveModal')">✕</button>
+    <h2>🚗 Schedule Test Drive</h2>
+    <p>Pick a time that works for you. The dealer will confirm within 2 hours.</p>
+    <div class="form-field">
+      <label>Your Name</label>
+      <input type="text" placeholder="John Smith">
+    </div>
+    <div class="form-field">
+      <label>Email</label>
+      <input type="email" placeholder="john@example.com">
+    </div>
+    <div class="form-field">
+      <label>Preferred Date</label>
+      <input type="date">
+    </div>
+    <div class="form-field">
+      <label>Preferred Time</label>
+      <select>
+        <option>9:00 AM</option>
+        <option>10:00 AM</option>
+        <option>11:00 AM</option>
+        <option>12:00 PM</option>
+        <option>1:00 PM</option>
+        <option>2:00 PM</option>
+        <option>3:00 PM</option>
+        <option>4:00 PM</option>
+        <option>5:00 PM</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Notes (optional)</label>
+      <textarea rows="2" placeholder="Any special requests?"></textarea>
+    </div>
+    <button class="btn-cta" onclick="submitTestDrive()">Confirm Test Drive 🗓️</button>
+  </div>
+</div>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
+    <div class="auth-modal-header">
+      <div class="auth-logo">🚗</div>
+      <h2>Welcome back</h2>
+      <p>Sign in to your AutoDrive account</p>
+    </div>
+    <div class="form-field">
+      <label>Email Address</label>
+      <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="form-field">
+      <label>Password</label>
+      <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password"
+             onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn-cta" onclick="login()" style="width:100%;margin-top:8px">Sign In</button>
+    <p class="auth-switch">Don't have an account? <span onclick="closeModal('loginModal');openModal('registerModal')">Create one →</span></p>
+  </div>
+</div>
+
+<!-- REGISTER MODAL -->
+<div class="modal-overlay" id="registerModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
+    <div class="auth-modal-header">
+      <div class="auth-logo">🚗</div>
+      <h2>Create account</h2>
+      <p>Join AutoDrive and start buying or selling</p>
+    </div>
+    <div class="form-field">
+      <label>Full Name</label>
+      <input type="text" id="regName" placeholder="Jane Smith" autocomplete="name">
+    </div>
+    <div class="form-field">
+      <label>Email Address</label>
+      <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+    </div>
+    <div class="form-field">
+      <label>Password <span style="color:var(--text-muted);font-weight:400">(min. 6 characters)</span></label>
+      <input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password">
+    </div>
+    <div class="form-field">
+      <label>Confirm Password</label>
+      <input type="password" id="regConfirm" placeholder="••••••••" autocomplete="new-password"
+             onkeydown="if(event.key==='Enter')register()">
+    </div>
+    <button class="btn-cta" onclick="register()" style="width:100%;margin-top:8px">Create Account</button>
+    <p class="auth-switch">Already have an account? <span onclick="closeModal('registerModal');openModal('loginModal')">Sign in →</span></p>
+  </div>
+</div>
+
+<!-- SELL CAR MODAL -->
+<div class="modal-overlay" id="sellModal">
+  <div class="modal modal-wide">
+    <button class="modal-close" onclick="closeModal('sellModal')">✕</button>
+    <input type="hidden" id="sellEditId" value="">
+    <h2 id="sellModalTitle">🚗 Post Your Car for Sale</h2>
+    <p style="color:var(--text-muted);margin-bottom:20px">Fill in the details below. Fields marked <span style="color:var(--danger)">*</span> are required.</p>
+    <div class="sell-form">
+      <div class="form-field">
+        <label>Make <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="sellMake" placeholder="e.g. BMW">
+      </div>
+      <div class="form-field">
+        <label>Model <span style="color:var(--danger)">*</span></label>
+        <input type="text" id="sellModel" placeholder="e.g. 3 Series">
+      </div>
+      <div class="form-field">
+        <label>Year <span style="color:var(--danger)">*</span></label>
+        <input type="number" id="sellYear" placeholder="2021" min="1980" max="2025">
+      </div>
+      <div class="form-field">
+        <label>Price (£) <span style="color:var(--danger)">*</span></label>
+        <input type="number" id="sellPrice" placeholder="18500" min="0">
+      </div>
+      <div class="form-field">
+        <label>Mileage</label>
+        <input type="number" id="sellMileage" placeholder="34000" min="0">
+      </div>
+      <div class="form-field">
+        <label>Body Type <span style="color:var(--danger)">*</span></label>
+        <select id="sellType">
+          <option value="">Select type</option>
+          <option>Sedan</option><option>SUV</option><option>Hatchback</option>
+          <option>Coupe</option><option>Convertible</option><option>Truck</option><option>Van</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Fuel Type</label>
+        <select id="sellFuel">
+          <option>Petrol</option><option>Diesel</option><option>Electric</option>
+          <option>Hybrid</option><option>Mild Hybrid</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Transmission</label>
+        <select id="sellTransmission">
+          <option>Manual</option><option>Automatic</option><option>Semi-Automatic</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Condition</label>
+        <select id="sellCondition">
+          <option>Used</option><option>New</option><option>Certified</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Colour</label>
+        <input type="text" id="sellColor" placeholder="e.g. Midnight Black">
+      </div>
+      <div class="form-field">
+        <label>Engine</label>
+        <input type="text" id="sellEngine" placeholder="e.g. 2.0L Turbocharged">
+      </div>
+      <div class="form-field">
+        <label>Location</label>
+        <input type="text" id="sellLocation" placeholder="e.g. Manchester">
+      </div>
+      <div class="form-field">
+        <label>Postcode</label>
+        <input type="text" id="sellPostcode" placeholder="e.g. M1 1AE">
+      </div>
+    </div>
+    <div class="form-field" style="margin-top:4px">
+      <label>Image URL <span style="color:var(--text-muted);font-weight:400">(optional — paste a direct image link)</span></label>
+      <input type="url" id="sellImage" placeholder="https://...">
+    </div>
+    <div class="form-field">
+      <label>Description</label>
+      <textarea id="sellDescription" rows="3" placeholder="Describe your car — service history, extras, reason for selling..."></textarea>
+    </div>
+
+    <div class="form-field" style="margin-top:4px">
+      <label class="checkbox-item" style="gap:10px;font-size:15px;font-weight:700;color:var(--text)">
+        <input type="checkbox" id="sellPXOpen" onchange="toggleSellPX(this.checked)" style="width:18px;height:18px;flex-shrink:0">
+        <span style="color:var(--text);font-weight:700;font-size:14px">🔄 Open to Part Exchange</span>
+      </label>
+      <div class="px-sell-panel" id="pxSellPanel" style="display:none">
+        <p style="font-size:13px;color:var(--text-muted);margin:0">Specify the cars you'd consider accepting in exchange.</p>
+        <div class="form-field" style="margin:0">
+          <label>Accepted Makes <span style="color:var(--text-muted);font-weight:400;font-size:12px">(comma-separated, or "Any")</span></label>
+          <input type="text" id="sellPXMakes" placeholder="e.g. BMW, Toyota — or: Any">
+        </div>
+        <div class="sell-form" style="margin:0">
+          <div class="form-field" style="margin:0">
+            <label>Min Engine Size (L)</label>
+            <input type="number" id="sellPXMinEngine" placeholder="e.g. 1.6" step="0.1" min="0" max="10">
+          </div>
+          <div class="form-field" style="margin:0">
+            <label>Min Car Year</label>
+            <input type="number" id="sellPXMinYear" placeholder="e.g. 2016" min="1990" max="2025">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-cta" id="sellSubmitBtn" onclick="postListing()" style="width:100%;margin-top:8px">Post Listing 🚗</button>
+  </div>
+</div>
+
+<!-- VIN DECODER MODAL -->
+<div class="modal-overlay" id="vinModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('vinModal')">✕</button>
+    <h2>🔎 VIN Decoder</h2>
+    <p>Enter a 17-character Vehicle Identification Number to decode manufacturer details.</p>
+    <div class="form-field">
+      <label>VIN Number</label>
+      <input type="text" id="vinInput" placeholder="e.g. WBS43AY0XPA123456" maxlength="17" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()">
+    </div>
+    <button class="btn-cta" onclick="decodeVIN()" style="margin-bottom:16px">Decode VIN</button>
+    <div id="vinResult"></div>
+  </div>
+</div>
+
+<!-- FINANCING PRE-APPROVAL MODAL -->
+<div class="modal-overlay" id="financingModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('financingModal')">✕</button>
+    <h2>🏦 Financing Pre-Approval</h2>
+    <p>Get pre-approved in minutes. No hard credit check required.</p>
+    <div class="form-field">
+      <label>Full Name</label>
+      <input type="text" placeholder="Jane Smith">
+    </div>
+    <div class="form-field">
+      <label>Annual Income (£)</label>
+      <input type="number" placeholder="45000" min="0">
+    </div>
+    <div class="form-field">
+      <label>Employment Status</label>
+      <select>
+        <option>Full-time Employed</option>
+        <option>Part-time Employed</option>
+        <option>Self-Employed</option>
+        <option>Retired</option>
+        <option>Student</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Credit Score Range</label>
+      <select>
+        <option>Excellent (750+)</option>
+        <option>Good (700–749)</option>
+        <option>Fair (650–699)</option>
+        <option>Poor (below 650)</option>
+      </select>
+    </div>
+    <div class="form-field">
+      <label>Desired Loan Amount (£)</label>
+      <input type="number" placeholder="25000" min="0">
+    </div>
+    <button class="btn-cta" onclick="submitFinancing()">Check My Rate</button>
+  </div>
+</div>
+
+<!-- ABOUT MODAL -->
+<div class="modal-overlay" id="aboutModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('aboutModal')">✕</button>
+    <h2>🚗 About AutoDrive</h2>
+    <p style="margin-bottom:16px">AutoDrive is the UK's most modern vehicle marketplace, connecting millions of buyers with thousands of trusted dealers nationwide.</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px">
+      <div style="background:var(--bg-input);border-radius:var(--radius);padding:16px;text-align:center">
+        <div style="font-size:24px;font-weight:800;color:var(--primary)">50K+</div>
+        <div style="font-size:13px;color:var(--text-muted)">Vehicles Listed</div>
+      </div>
+      <div style="background:var(--bg-input);border-radius:var(--radius);padding:16px;text-align:center">
+        <div style="font-size:24px;font-weight:800;color:var(--primary)">8,200+</div>
+        <div style="font-size:13px;color:var(--text-muted)">Verified Dealers</div>
+      </div>
+      <div style="background:var(--bg-input);border-radius:var(--radius);padding:16px;text-align:center">
+        <div style="font-size:24px;font-weight:800;color:var(--primary)">2M+</div>
+        <div style="font-size:13px;color:var(--text-muted)">Happy Buyers</div>
+      </div>
+      <div style="background:var(--bg-input);border-radius:var(--radius);padding:16px;text-align:center">
+        <div style="font-size:24px;font-weight:800;color:var(--primary)">4.9★</div>
+        <div style="font-size:13px;color:var(--text-muted)">Average Rating</div>
+      </div>
+    </div>
+    <p style="color:var(--text-muted);font-size:14px">Founded in 2018, AutoDrive is headquartered in London, UK. Our mission is to make buying and selling vehicles transparent, simple, and stress-free.</p>
+  </div>
+</div>
+
+<!-- PRIVACY POLICY MODAL -->
+<div class="modal-overlay" id="privacyModal">
+  <div class="modal" style="max-height:80vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeModal('privacyModal')">✕</button>
+    <h2>🔒 Privacy Policy</h2>
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">Last updated: January 2025</p>
+    <div style="font-size:14px;line-height:1.7;color:var(--text-muted);display:flex;flex-direction:column;gap:14px">
+      <div><strong style="color:var(--text)">Data We Collect</strong><br>We collect information you provide directly (name, email, search preferences) and usage data to improve our service.</div>
+      <div><strong style="color:var(--text)">How We Use It</strong><br>Your data is used to personalise search results, send price alerts you request, and improve AutoDrive. We never sell your personal data to third parties.</div>
+      <div><strong style="color:var(--text)">Cookies</strong><br>We use essential cookies for site functionality and optional analytics cookies (with your consent) to understand how people use AutoDrive.</div>
+      <div><strong style="color:var(--text)">Your Rights</strong><br>Under UK GDPR you have the right to access, correct, or delete your data at any time. Contact privacy@autodrive.co.uk.</div>
+      <div><strong style="color:var(--text)">Contact</strong><br>AutoDrive Ltd, 1 Canada Square, Canary Wharf, London E14 5AB · privacy@autodrive.co.uk</div>
+    </div>
+  </div>
+</div>
+
+<!-- TERMS OF SERVICE MODAL -->
+<div class="modal-overlay" id="termsModal">
+  <div class="modal" style="max-height:80vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeModal('termsModal')">✕</button>
+    <h2>📄 Terms of Service</h2>
+    <p style="color:var(--text-muted);font-size:13px;margin-bottom:16px">Last updated: January 2025</p>
+    <div style="font-size:14px;line-height:1.7;color:var(--text-muted);display:flex;flex-direction:column;gap:14px">
+      <div><strong style="color:var(--text)">Acceptance</strong><br>By using AutoDrive you agree to these terms. If you do not agree, please do not use the service.</div>
+      <div><strong style="color:var(--text)">Listings</strong><br>AutoDrive displays listings provided by dealers and private sellers. We do not guarantee the accuracy of listings and recommend independent verification before purchase.</div>
+      <div><strong style="color:var(--text)">Pricing</strong><br>All prices shown are indicative. Finance calculations are estimates only. Contact the dealer for confirmed pricing and finance offers.</div>
+      <div><strong style="color:var(--text)">Intellectual Property</strong><br>All AutoDrive branding, design, and software is owned by AutoDrive Ltd. You may not reproduce or distribute it without written permission.</div>
+      <div><strong style="color:var(--text)">Governing Law</strong><br>These terms are governed by the laws of England and Wales. Disputes shall be subject to the exclusive jurisdiction of the English courts.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== COOKIE BANNER ===================== -->
+<div class="cookie-banner" id="cookieBanner">
+  <div class="cookie-text">
+    🍪 We use cookies to personalise your experience and remember your preferences.
+    <span class="cookie-link" onclick="openModal('privacyModal')">Privacy Policy</span>
+  </div>
+  <div class="cookie-actions">
+    <button class="cookie-btn-decline" onclick="declineCookies()">Necessary Only</button>
+    <button class="cookie-btn-accept" onclick="acceptCookies()">Accept All</button>
+  </div>
+</div>
+
+<!-- ===================== TOAST CONTAINER ===================== -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- ===================== SCRIPTS ===================== -->
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script>
+/* Extra helpers not in app.js */
+
+function setHeroTab(el, type) {
+  document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (type === 'electric') {
+    state.filters.fuel = 'Electric';
+  } else if (type === 'new') {
+    state.filters.condition = 'New';
+    state.filters.fuel = '';
+  } else if (type === 'used') {
+    state.filters.condition = 'Used';
+    state.filters.fuel = '';
+  } else if (type === 'certified') {
+    state.filters.condition = 'Used';
+  }
+}
+
+function goToBrowse(cat) {
+  state.filters.category = cat;
+  state.page_num = 1;
+  navigate('browse');
+}
+
+function setView(mode) {
+  state.viewMode = mode;
+  document.getElementById('viewGrid').classList.toggle('active', mode === 'grid');
+  document.getElementById('viewList').classList.toggle('active', mode === 'list');
+  renderBrowse();
+}
+
+function updatePriceRange() {
+  const minEl = document.getElementById('priceMin');
+  const maxEl = document.getElementById('priceMax');
+  let min = parseInt(minEl.value);
+  let max = parseInt(maxEl.value);
+  if (min > max - 5000) { min = max - 5000; minEl.value = min; }
+  state.filters.minPrice = min;
+  state.filters.maxPrice = max;
+  document.getElementById('priceMinVal').textContent = '£' + (min / 1000).toFixed(0) + 'K';
+  document.getElementById('priceMaxVal').textContent = max >= 300000 ? '£300K+' : '£' + (max / 1000).toFixed(0) + 'K';
+  const pct1 = min / 300000 * 100;
+  const pct2 = max / 300000 * 100;
+  document.getElementById('priceFill').style.left = pct1 + '%';
+  document.getElementById('priceFill').style.right = (100 - pct2) + '%';
+  state.page_num = 1;
+  renderBrowse();
+}
+
+function updateMileageRange() {
+  const val = parseInt(document.getElementById('mileageMax').value);
+  state.filters.maxMileage = val;
+  document.getElementById('mileageMaxVal').textContent = val >= 200000 ? '200K+ mi' : val.toLocaleString() + ' mi';
+  const pct = val / 200000 * 100;
+  document.getElementById('mileageFill').style.left = '0';
+  document.getElementById('mileageFill').style.right = (100 - pct) + '%';
+  state.page_num = 1;
+  renderBrowse();
+}
+
+function filterNoAccident(checked) {
+  // Simple in-place filter via a temporary property
+  state.filters._noAccident = checked;
+  state.page_num = 1;
+  renderBrowse();
+}
+
+function filterCarfax(checked) {
+  state.filters._carfax = checked;
+  state.page_num = 1;
+  renderBrowse();
+}
+
+function addCurrentToCompare() {
+  if (state.selectedCar) toggleCompare(state.selectedCar.id);
+}
+
+function clearAllCompare() {
+  state.compareList = [];
+  saveCompare();
+  updateCompareTray();
+  if (state.page === 'compare') renderCompare();
+  document.querySelectorAll('.card-compare').forEach(btn => {
+    btn.classList.remove('in-compare');
+    btn.textContent = '⊕ Compare';
+  });
+  toast('Comparison cleared', 'info', '🗑️');
+}
+
+function subscribeNewsletter(e) {
+  e.preventDefault();
+  toast('Subscribed! Watch your inbox for the best deals.', 'success', '🎉');
+  e.target.reset();
+}
+
+/* Render similar cars in detail page */
+const _origRenderDetail = renderDetail;
+renderDetail = function(car) {
+  _origRenderDetail(car);
+  // Similar: same category, different car
+  const similar = CAR_DATA.filter(c => c.id !== car.id && c.category === car.category).slice(0, 3);
+  const el = document.getElementById('similarGrid');
+  if (el) el.innerHTML = similar.map(c => carCardHTML(c)).join('');
+  initReveal();
+  // re-init calc with correct IDs (detail page uses same IDs as home)
+  updateCalc();
+};
+
+/* Show filter toggle on small screens */
+function checkFilterToggle() {
+  const btn = document.getElementById('filterToggle');
+  if (btn) btn.style.display = window.innerWidth <= 1100 ? 'flex' : 'none';
+}
+window.addEventListener('resize', checkFilterToggle);
+checkFilterToggle();
+
+/* Init price fill on browse */
+document.addEventListener('DOMContentLoaded', () => {
+  updateCalc();
+  // Init fill for price range
+  const pf = document.getElementById('priceFill');
+  if (pf) { pf.style.left = '0'; pf.style.right = '0'; pf.style.background = 'var(--primary)'; }
+});
+</script>
+
+</body>
+</html>
