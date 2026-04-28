@@ -868,6 +868,31 @@ function renderDetail(car) {
   if (dcDown) dcDown.value = state.calcValues.down;
   updateDetailCalc();
 
+  // Part Exchange section
+  const pxEl = document.getElementById('detailPXSection');
+  if (pxEl) {
+    const px = car.partExchange;
+    if (px && px.open) {
+      const makes = px.acceptedMakes && !px.acceptedMakes.includes('Any') ? px.acceptedMakes.join(', ') : null;
+      const rows = [
+        makes ? `<div class="px-detail-row"><span>Accepted makes</span><strong>${makes}</strong></div>` : '',
+        px.minEngineL ? `<div class="px-detail-row"><span>Min engine size</span><strong>${px.minEngineL}L+</strong></div>` : '',
+        px.minYear    ? `<div class="px-detail-row"><span>Min year</span><strong>${px.minYear} or newer</strong></div>` : '',
+      ].filter(Boolean).join('');
+      pxEl.innerHTML = `
+        <div class="px-detail-card">
+          <div class="px-detail-header"><span class="badge-px" style="font-size:13px;padding:4px 10px">🔄 Part Exchange Welcome</span></div>
+          <p class="px-detail-desc">This seller is open to a part exchange on your current car.</p>
+          ${rows ? `<div class="px-detail-rows">${rows}</div>` : '<p class="px-detail-desc" style="margin:0;color:var(--text-muted);font-style:italic">Accepting any make, age, or engine size.</p>'}
+        </div>`;
+    } else {
+      pxEl.innerHTML = `
+        <div class="px-detail-card px-detail-closed">
+          <span style="font-size:13px;font-weight:700;color:var(--text-muted)">🚫 Not accepting part exchanges</span>
+        </div>`;
+    }
+  }
+
   // Fav btn
   const favBtn = document.getElementById('detailFavBtn');
   if (favBtn) {
