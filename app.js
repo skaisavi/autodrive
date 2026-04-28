@@ -627,6 +627,8 @@ function getFilteredCars() {
   if (f.category && f.category !== 'All') cars = cars.filter(c => c.category === f.category);
   if (f.isEV) cars = cars.filter(c => c.isEV);
   if (f.isHybrid) cars = cars.filter(c => c.isHybrid);
+  if (f.noAccident) cars = cars.filter(c => c.accidentFree);
+  if (f.carfax) cars = cars.filter(c => c.carfax);
   if (f.pxOnly) {
     cars = cars.filter(c => c.partExchange && c.partExchange.open);
     if (f.pxMyMake) {
@@ -734,7 +736,7 @@ function clearFilter(key) {
 }
 
 function clearAllFilters() {
-  state.filters = { make: '', type: '', fuel: '', condition: '', minPrice: 0, maxPrice: 300000, maxMileage: 200000, category: 'All', isEV: false, isHybrid: false, pxOnly: false, pxMyMake: '', pxMyEngineL: 0, pxMyYear: 0 };
+  state.filters = { make: '', type: '', fuel: '', condition: '', minPrice: 0, maxPrice: 300000, maxMileage: 200000, category: 'All', isEV: false, isHybrid: false, noAccident: false, carfax: false, pxOnly: false, pxMyMake: '', pxMyEngineL: 0, pxMyYear: 0 };
   state.searchQuery = '';
   state.page_num = 1;
   document.getElementById('filterMake').value = '';
@@ -1325,15 +1327,14 @@ function setupFilters() {
 
 /* ===== HERO SEARCH ===== */
 function heroSearch() {
-  const make = document.getElementById('heroMake').value;
-  const type = document.getElementById('heroType').value;
-  const minYear = document.getElementById('heroMinYear').value;
-  const maxPrice = document.getElementById('heroMaxPrice').value;
+  const make = document.getElementById('heroMake')?.value || '';
+  const type = document.getElementById('heroType')?.value || '';
+  const maxPrice = document.getElementById('heroMaxPrice')?.value || '';
 
-  state.filters.make = make;
-  if (type && type !== 'All') state.filters.type = type;
+  if (make) state.filters.make = make;
+  if (type) state.filters.type = type;
   if (maxPrice) state.filters.maxPrice = parseInt(maxPrice);
-
+  state.page_num = 1;
   navigate('browse');
 }
 
@@ -1428,3 +1429,92 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+/* ===== MISSING STUBS ===== */
+function goToBrowse(cat) {
+  state.filters.category = cat || 'All';
+  state.page_num = 1;
+  document.querySelectorAll('.cat-pill').forEach(p => p.classList.toggle('active', p.dataset.cat === cat));
+  navigate('browse');
+}
+
+function setHeroTab(el, tab) {
+  document.querySelectorAll('.search-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  if (tab === 'electric') {
+    state.filters.isEV = true;
+    state.filters.isHybrid = false;
+  } else if (tab === 'certified') {
+    state.filters.condition = 'Used';
+  } else if (tab === 'new') {
+    state.filters.condition = 'New';
+    state.filters.isEV = false;
+  } else {
+    state.filters.condition = '';
+    state.filters.isEV = false;
+  }
+}
+
+function subscribeNewsletter(e) {
+  e.preventDefault();
+  const input = e.target.querySelector('input[type="email"]');
+  if (input) input.value = '';
+  toast('You\'re subscribed! Watch your inbox for the best deals.', 'success', '🔔');
+}
+
+function filterNoAccident(checked) {
+  state.filters.noAccident = checked;
+  state.page_num = 1;
+  renderBrowse();
+}
+
+function filterCarfax(checked) {
+  state.filters.carfax = checked;
+  state.page_num = 1;
+  renderBrowse();
+}
+
+function updatePriceRange() {
+  const minEl = document.getElementById('priceMin');
+  const maxEl = document.getElementById('priceMax');
+  const fillEl = document.getElementById('priceFill');
+  if (!minEl || !maxEl) return;
+  let min = parseInt(minEl.value), max = parseInt(maxEl.value);
+  if (min > max) { [min, max] = [max, min]; minEl.value = min; maxEl.value = max; }
+  state.filters.minPrice = min;
+  state.filters.maxPrice = max;
+  document.getElementById('priceMinVal').textContent = fmt(min);
+  document.getElementById('priceMaxVal').textContent = fmt(max);
+  if (fillEl) {
+    const pct1 = (min / 300000) * 100, pct2 = (max / 300000) * 100;
+    fillEl.style.left = pct1 + '%';
+    fillEl.style.right = (100 - pct2) + '%';
+  }
+  state.page_num = 1;
+  renderBrowse();
+}
+
+function updateMileageRange() {
+  const el = document.getElementById('mileageMax');
+  const fillEl = document.getElementById('mileageFill');
+  if (!el) return;
+  const val = parseInt(el.value);
+  state.filters.maxMileage = val;
+  document.getElementById('mileageMaxVal').textContent = val >= 200000 ? '200K+ mi' : (val / 1000).toFixed(0) + 'K mi';
+  if (fillEl) { fillEl.style.left = '0'; fillEl.style.right = (100 - (val / 200000) * 100) + '%'; }
+  state.page_num = 1;
+  renderBrowse();
+}
+
+function addCurrentToCompare() {
+  const car = state.selectedCar;
+  if (!car) return;
+  toggleCompare(car.id);
+}
+
+function setView(v) {
+  state.view = v;
+  document.getElementById('viewGrid').classList.toggle('active', v === 'grid');
+  document.getElementById('viewList').classList.toggle('active', v === 'list');
+  renderBrowse();
+}
