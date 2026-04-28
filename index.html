@@ -469,6 +469,7 @@
 
 <!-- ===================== BROWSE PAGE ===================== -->
 <div id="page-browse" class="page">
+  <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleMobileFilters()"></div>
 
   <div class="browse-layout">
 
@@ -742,27 +743,25 @@
         <div id="detailPXSection"></div>
 
         <!-- Mini Calculator -->
-        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)">
-          <h4 style="font-size:14px;font-weight:700;margin-bottom:12px">💳 Quick Calculator</h4>
-          <div id="detailCalcMonthly" style="background:var(--primary);color:#fff;border-radius:var(--radius);padding:12px;text-align:center;margin-bottom:10px;font-size:20px;font-weight:800"></div>
-          <div style="display:flex;flex-direction:column;gap:10px">
-            <div>
-              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)">Down Payment</label>
-              <input type="number" id="detailCalcDown" style="width:100%;margin-top:4px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg-input);color:var(--text);font-family:var(--font);font-size:14px;font-weight:600;outline:none" oninput="updateDetailCalc()">
-            </div>
-            <div>
-              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)">APR %</label>
-              <input type="number" id="detailCalcRate" value="6.9" step="0.1" style="width:100%;margin-top:4px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg-input);color:var(--text);font-family:var(--font);font-size:14px;font-weight:600;outline:none" oninput="updateDetailCalc()">
-            </div>
-            <div>
-              <label style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)">Loan Term</label>
-              <select id="detailCalcTerm" style="width:100%;margin-top:4px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);background:var(--bg-input);color:var(--text);font-family:var(--font);font-size:14px;outline:none;-webkit-appearance:none" onchange="updateDetailCalc()">
+        <div class="price-card-calc">
+          <h4>💳 Quick Calculator</h4>
+          <div id="detailCalcMonthly" class="calc-monthly-display"></div>
+          <div class="calc-field-row">
+            <label>Down Payment</label>
+            <input type="number" id="detailCalcDown" oninput="updateDetailCalc()">
+          </div>
+          <div class="calc-field-row">
+            <label>APR %</label>
+            <input type="number" id="detailCalcRate" value="6.9" step="0.1" oninput="updateDetailCalc()">
+          </div>
+          <div class="calc-field-row">
+            <label>Loan Term</label>
+            <select id="detailCalcTerm" onchange="updateDetailCalc()">
                 <option value="36">36 months</option>
                 <option value="48">48 months</option>
                 <option value="60" selected>60 months</option>
                 <option value="72">72 months</option>
               </select>
-            </div>
           </div>
         </div>
       </div>

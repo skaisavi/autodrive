@@ -880,10 +880,10 @@ function renderDetail(car) {
         px.minYear    ? `<div class="px-detail-row"><span>Min year</span><strong>${px.minYear} or newer</strong></div>` : '',
       ].filter(Boolean).join('');
       pxEl.innerHTML = `
-        <div class="px-detail-card">
-          <div class="px-detail-header"><span class="badge-px" style="font-size:13px;padding:4px 10px">🔄 Part Exchange Welcome</span></div>
+        <div class="px-detail-card px-open">
+          <div class="px-detail-header"><span class="badge-px">🔄 Part Exchange Welcome</span></div>
           <p class="px-detail-desc">This seller is open to a part exchange on your current car.</p>
-          ${rows ? `<div class="px-detail-rows">${rows}</div>` : '<p class="px-detail-desc" style="margin:0;color:var(--text-muted);font-style:italic">Accepting any make, age, or engine size.</p>'}
+          ${rows ? `<div class="px-detail-rows">${rows}</div>` : '<p class="px-detail-desc" style="font-style:italic">Accepting any make, age, or engine size.</p>'}
         </div>`;
     } else {
       pxEl.innerHTML = `
@@ -1225,6 +1225,7 @@ function toggleMenu() {
 
 function toggleMobileFilters() {
   document.getElementById('filterSidebar').classList.toggle('mobile-open');
+  document.getElementById('sidebarBackdrop')?.classList.toggle('visible');
 }
 
 /* ===== MODALS ===== */
