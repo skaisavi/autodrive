@@ -101,7 +101,7 @@ function openEditModal(id) {
   set('sellMake', car.make); set('sellModel', car.model); set('sellYear', car.year);
   set('sellPrice', car.price); set('sellMileage', car.mileage); set('sellColor', car.color);
   set('sellEngine', car.engine !== 'See description' ? car.engine : '');
-  set('sellLocation', car.location); set('sellPostcode', car.zip);
+  set('sellLocation', car.location); set('sellPostcode', car.postcode);
   set('sellDescription', car.description); set('sellImage', car.image?.startsWith('https://placehold') ? '' : car.image);
   const setSelect = (elId, val) => { const el = document.getElementById(elId); if (el) el.value = val; };
   setSelect('sellType', car.type); setSelect('sellFuel', car.fuel);
@@ -117,6 +117,7 @@ function openEditModal(id) {
   if (pxPanel) pxPanel.style.display = (px && px.open) ? '' : 'none';
   if (px && px.open) {
     set('sellPXMakes', px.acceptedMakes ? px.acceptedMakes.join(', ') : '');
+    set('sellPXFuels', px.acceptedFuels ? px.acceptedFuels.join(', ') : '');
     set('sellPXMinEngine', px.minEngineL || '');
     set('sellPXMinYear', px.minYear || '');
   }
@@ -199,20 +200,20 @@ function postListing() {
   const postcode    = get('sellPostcode') || '';
   const description = get('sellDescription') || '';
   const imageUrl    = get('sellImage') || '';
-  const catMap      = { SUV:'SUVs', Truck:'Trucks', Coupe:'Performance', Sedan:'All', Hatchback:'All', Convertible:'All', Van:'All' };
+  const catMap      = { SUV:'SUVs', 'Pick-up':'Pickups', Coupe:'Performance', Saloon:'All', Hatchback:'All', Convertible:'All', Van:'All' };
   const img         = imageUrl || carImgPlaceholder(make, model);
   const car = {
     id: 100000 + (Date.now() % 100000),
     make, model, year, price, mileage, type, fuel, transmission, condition, color,
     engine: get('sellEngine') || 'See description',
     horsepower: 0, torque: 0,
-    mpg: { city: 0, highway: 0 },
+    mpg: { combined: 0 },
     features: [], dealer: `${user.name} (Private Seller)`,
-    location, zip: postcode, distance: 0, rating: 0, reviews: 0,
+    location, postcode, distance: 0, rating: 0, reviews: 0,
     image: img, images: [img],
     badge: 'Private Seller',
     priceHistory: [price], daysOnMarket: 0,
-    vin: '', accidentFree: false, owners: 1, carfax: false,
+    vin: '', accidentFree: false, owners: 1, hpiCheck: false,
     category: catMap[type] || 'All',
     isEV: fuel === 'Electric', isHybrid: fuel === 'Hybrid',
     sellerId: user.id, sellerName: user.name, description,
@@ -222,9 +223,11 @@ function postListing() {
       if (!pxOpen) return { open: false };
       const makesRaw = document.getElementById('sellPXMakes')?.value.trim() || '';
       const acceptedMakes = makesRaw ? makesRaw.split(',').map(m => m.trim()).filter(Boolean) : ['Any'];
+      const fuelsRaw = document.getElementById('sellPXFuels')?.value.trim() || '';
+      const acceptedFuels = fuelsRaw ? fuelsRaw.split(',').map(f => f.trim()).filter(Boolean) : ['Any'];
       const minEngineL = parseFloat(document.getElementById('sellPXMinEngine')?.value) || 0;
       const minYear = parseInt(document.getElementById('sellPXMinYear')?.value) || 0;
-      return { open: true, acceptedMakes, ...(minEngineL && { minEngineL }), ...(minYear && { minYear }) };
+      return { open: true, acceptedMakes, acceptedFuels, ...(minEngineL && { minEngineL }), ...(minYear && { minYear }) };
     })(),
   };
   const editId = parseInt(document.getElementById('sellEditId')?.value);
@@ -237,7 +240,7 @@ function postListing() {
   }
   saveUserListings(listings);
   // Reset form + edit state
-  ['sellMake','sellModel','sellYear','sellPrice','sellMileage','sellColor','sellEngine','sellLocation','sellPostcode','sellDescription','sellImage']
+  ['sellMake','sellModel','sellYear','sellPrice','sellMileage','sellColor','sellEngine','sellLocation','sellPostcode','sellDescription','sellImage','sellPXMakes','sellPXFuels','sellPXMinEngine','sellPXMinYear']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   const editIdEl = document.getElementById('sellEditId');
   if (editIdEl) editIdEl.value = '';
@@ -364,7 +367,7 @@ const state = {
   page: 'home',
   favorites: JSON.parse(localStorage.getItem('favs') || '[]'),
   compareList: JSON.parse(localStorage.getItem('compare') || '[]'),
-  filters: { make: '', type: '', fuel: '', condition: '', minPrice: 0, maxPrice: 300000, maxMileage: 200000, category: 'All', isEV: false, isHybrid: false, pxOnly: false, pxMyMake: '', pxMyEngineL: 0, pxMyYear: 0 },
+  filters: { make: '', type: '', fuel: '', condition: '', minPrice: 0, maxPrice: 300000, maxMileage: 200000, category: 'All', isEV: false, isHybrid: false, pxOnly: false, pxMyMake: '', pxMyFuel: '', pxMyEngineL: 0, pxMyYear: 0 },
   sort: 'recommended',
   viewMode: 'grid',
   searchQuery: '',
@@ -389,7 +392,12 @@ function navigate(page, data) {
   // Close mobile menu on navigation
   const nav = document.getElementById('headerNav');
   if (nav) nav.classList.remove('mobile-open');
-  if (page === 'browse') renderBrowse();
+  if (page === 'home') renderHome();
+  if (page === 'browse') {
+    const grid = document.getElementById('carsGrid');
+    if (grid) delete grid.dataset.loaded;
+    renderBrowse();
+  }
   if (page === 'detail' && state.selectedCar) renderDetail(state.selectedCar);
   if (page === 'compare') renderCompare();
   if (page === 'favorites') renderFavorites();
@@ -546,7 +554,7 @@ function carCardHTML(car, listView = false) {
         <div class="car-specs">
           <div class="car-spec"><span class="spec-val">${car.horsepower}</span><span class="spec-key">HP</span></div>
           <div class="car-spec"><span class="spec-val">${fmtMi(car.mileage)}</span><span class="spec-key">Miles</span></div>
-          <div class="car-spec"><span class="spec-val">${car.mpg.city}/${car.mpg.highway}</span><span class="spec-key">${car.mpg.unit || 'MPG'}</span></div>
+          <div class="car-spec"><span class="spec-val">${car.mpg.combined || 0}</span><span class="spec-key">${car.mpg.unit || 'MPG'}</span></div>
         </div>
         <div style="font-size:13px;color:var(--text-muted)">📍 ${car.location} · ${car.distance} mi away</div>
       </div>
@@ -580,7 +588,7 @@ function carCardHTML(car, listView = false) {
       <div class="car-specs">
         <div class="car-spec"><span class="spec-val">${car.horsepower}hp</span><span class="spec-key">Power</span></div>
         <div class="car-spec"><span class="spec-val">${fmtMi(car.mileage)}</span><span class="spec-key">Miles</span></div>
-        <div class="car-spec"><span class="spec-val">${car.mpg.city}/${car.mpg.highway}</span><span class="spec-key">${car.mpg.unit || 'MPG'}</span></div>
+        <div class="car-spec"><span class="spec-val">${car.mpg.combined || 0}</span><span class="spec-key">${car.mpg.unit || 'MPG'}</span></div>
       </div>
       <div class="car-footer">
         <div>
@@ -628,7 +636,7 @@ function getFilteredCars() {
   if (f.isEV) cars = cars.filter(c => c.isEV);
   if (f.isHybrid) cars = cars.filter(c => c.isHybrid);
   if (f.noAccident) cars = cars.filter(c => c.accidentFree);
-  if (f.carfax) cars = cars.filter(c => c.carfax);
+  if (f.hpiCheck) cars = cars.filter(c => c.hpiCheck);
   if (f.pxOnly) {
     cars = cars.filter(c => c.partExchange && c.partExchange.open);
     if (f.pxMyMake) {
@@ -652,6 +660,13 @@ function getFilteredCars() {
         return px.minYear <= f.pxMyYear;
       });
     }
+    if (f.pxMyFuel) {
+      cars = cars.filter(c => {
+        const px = c.partExchange;
+        if (!px || !px.acceptedFuels) return true;
+        return px.acceptedFuels.includes('Any') || px.acceptedFuels.includes(f.pxMyFuel);
+      });
+    }
   }
   cars = cars.filter(c => c.price >= f.minPrice && c.price <= f.maxPrice);
   cars = cars.filter(c => c.mileage <= f.maxMileage);
@@ -668,7 +683,27 @@ function getFilteredCars() {
   return cars;
 }
 
+function skeletonCards(n = 8) {
+  return Array.from({ length: n }, () => `
+    <div class="skeleton-card">
+      <div class="skeleton skeleton-img"></div>
+      <div class="skeleton-body">
+        <div class="skeleton skeleton-line wide"></div>
+        <div class="skeleton skeleton-line short"></div>
+        <div class="skeleton skeleton-line full"></div>
+        <div class="skeleton skeleton-price"></div>
+      </div>
+    </div>`).join('');
+}
+
 function renderBrowse() {
+  const grid = document.getElementById('carsGrid');
+  if (grid && !grid.dataset.loaded) {
+    grid.style.display = '';
+    grid.className = 'cars-grid';
+    grid.innerHTML = skeletonCards(8);
+  }
+
   const cars = getFilteredCars();
   const total = cars.length;
   const start = (state.page_num - 1) * state.perPage;
@@ -688,9 +723,8 @@ function renderBrowse() {
   activeFilters.innerHTML = tags.map(t =>
     `<span class="filter-tag">${t.label}<button onclick="clearFilter('${t.key}')">✕</button></span>`
   ).join('');
-
-  const grid = document.getElementById('carsGrid');
   if (paginated.length === 0) {
+    grid.dataset.loaded = '1';
     grid.innerHTML = `<div class="no-results" style="grid-column:1/-1">
       <div class="no-results-icon">🔍</div>
       <h3>No cars found</h3>
@@ -698,6 +732,7 @@ function renderBrowse() {
       <button class="btn-primary" onclick="clearAllFilters()">Clear All Filters</button>
     </div>`;
   } else {
+    grid.dataset.loaded = '1';
     if (state.viewMode === 'list') {
       grid.style.display = 'block';
       grid.innerHTML = `<div class="cars-list">${paginated.map(c => carCardHTML(c, true)).join('')}</div>`;
@@ -723,20 +758,21 @@ function clearFilter(key) {
   else if (key === 'px') {
     state.filters.pxOnly = false;
     state.filters.pxMyMake = '';
+    state.filters.pxMyFuel = '';
     state.filters.pxMyEngineL = 0;
     state.filters.pxMyYear = 0;
     const filterPX = document.getElementById('filterPX');
     if (filterPX) filterPX.checked = false;
     const pxWrap = document.getElementById('pxFilterWrap');
     if (pxWrap) pxWrap.style.display = 'none';
-    ['pxMyMake','pxMyEngine','pxMyYear'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+    ['pxMyMake','pxMyFuel','pxMyEngine','pxMyYear'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   } else state.filters[key] = key === 'category' ? 'All' : '';
   state.page_num = 1;
   renderBrowse();
 }
 
 function clearAllFilters() {
-  state.filters = { make: '', type: '', fuel: '', condition: '', minPrice: 0, maxPrice: 300000, maxMileage: 200000, category: 'All', isEV: false, isHybrid: false, noAccident: false, carfax: false, pxOnly: false, pxMyMake: '', pxMyEngineL: 0, pxMyYear: 0 };
+  state.filters = { make: '', type: '', fuel: '', condition: '', minPrice: 0, maxPrice: 300000, maxMileage: 200000, category: 'All', isEV: false, isHybrid: false, noAccident: false, hpiCheck: false, pxOnly: false, pxMyMake: '', pxMyFuel: '', pxMyEngineL: 0, pxMyYear: 0 };
   state.searchQuery = '';
   state.page_num = 1;
   document.getElementById('filterMake').value = '';
@@ -748,7 +784,7 @@ function clearAllFilters() {
   if (filterPX) filterPX.checked = false;
   const pxWrap = document.getElementById('pxFilterWrap');
   if (pxWrap) pxWrap.style.display = 'none';
-  ['pxMyMake', 'pxMyEngine', 'pxMyYear'].forEach(id => {
+  ['pxMyMake', 'pxMyFuel', 'pxMyEngine', 'pxMyYear'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
@@ -832,7 +868,7 @@ function renderDetail(car) {
       <div class="spec-item"><div class="spec-icon">⚡</div><div><div class="spec-label">Engine</div><div class="spec-value">${car.engine}</div></div></div>
       <div class="spec-item"><div class="spec-icon">🏎️</div><div><div class="spec-label">Horsepower</div><div class="spec-value">${car.horsepower} HP</div></div></div>
       <div class="spec-item"><div class="spec-icon">🔩</div><div><div class="spec-label">Torque</div><div class="spec-value">${car.torque} lb-ft</div></div></div>
-      <div class="spec-item"><div class="spec-icon">⛽</div><div><div class="spec-label">Fuel Economy</div><div class="spec-value">${car.mpg.city}/${car.mpg.highway} ${car.mpg.unit || 'MPG'}</div></div></div>
+      <div class="spec-item"><div class="spec-icon">⛽</div><div><div class="spec-label">Fuel Economy</div><div class="spec-value">${car.mpg.combined || 0} ${car.mpg.unit || 'MPG'}</div></div></div>
       <div class="spec-item"><div class="spec-icon">🚗</div><div><div class="spec-label">Drivetrain</div><div class="spec-value">${car.drivetrain}</div></div></div>
       <div class="spec-item"><div class="spec-icon">⚙️</div><div><div class="spec-label">Transmission</div><div class="spec-value">${car.transmission}</div></div></div>
       <div class="spec-item"><div class="spec-icon">🎨</div><div><div class="spec-label">Color</div><div class="spec-value">${car.color}</div></div></div>
@@ -849,7 +885,7 @@ function renderDetail(car) {
     <div class="history-badges">
       ${car.accidentFree ? '<span class="history-badge badge-ok">✓ No Accidents Reported</span>' : '<span class="history-badge badge-warn">⚠ 1 Accident Reported</span>'}
       <span class="history-badge badge-ok">✓ ${car.owners} Owner${car.owners > 1 ? 's' : ''}</span>
-      ${car.carfax ? '<span class="history-badge badge-ok">✓ CARFAX® Report Available</span>' : ''}
+      ${car.hpiCheck ? '<span class="history-badge badge-ok">✓ HPI Check Available</span>' : ''}
       <span class="history-badge badge-ok">✓ ${car.condition} Condition</span>
     </div>
     <p style="margin-top:16px;font-size:14px;color:var(--text-muted)">VIN: <strong style="color:var(--text)">${car.vin}</strong></p>
@@ -876,10 +912,12 @@ function renderDetail(car) {
     const px = car.partExchange;
     if (px && px.open) {
       const makes = px.acceptedMakes && !px.acceptedMakes.includes('Any') ? px.acceptedMakes.join(', ') : null;
+      const fuels = px.acceptedFuels && !px.acceptedFuels.includes('Any') ? px.acceptedFuels.join(', ') : null;
       const reqs = [
-        makes        ? { label: 'Accepted makes',  val: makes }                    : null,
-        px.minEngineL ? { label: 'Min engine size', val: px.minEngineL + 'L+' }   : null,
-        px.minYear    ? { label: 'Min year',        val: px.minYear + ' or newer' } : null,
+        makes         ? { label: 'Accepted makes',     val: makes }                    : null,
+        fuels         ? { label: 'Accepted fuel types', val: fuels }                   : null,
+        px.minEngineL ? { label: 'Min engine size',    val: px.minEngineL + 'L+' }    : null,
+        px.minYear    ? { label: 'Min year',           val: px.minYear + ' or newer' } : null,
       ].filter(Boolean);
       const rowsHTML = reqs.length ? reqs.map((r, i, arr) => `
         <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 13px;font-size:13px;${i < arr.length - 1 ? 'border-bottom:1px solid rgba(245,158,11,0.14);' : ''}">
@@ -928,6 +966,39 @@ function galleryNav(dir) {
   const next = (state.currentGalleryImg + dir + car.images.length) % car.images.length;
   setGalleryImg(next);
 }
+
+function openLightbox() {
+  const car = state.selectedCar;
+  if (!car) return;
+  const overlay = document.getElementById('lightboxOverlay');
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  updateLightboxImg();
+}
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+function lightboxNav(dir) {
+  const car = state.selectedCar;
+  if (!car) return;
+  state.currentGalleryImg = (state.currentGalleryImg + dir + car.images.length) % car.images.length;
+  setGalleryImg(state.currentGalleryImg);
+  updateLightboxImg();
+}
+function updateLightboxImg() {
+  const car = state.selectedCar;
+  if (!car) return;
+  document.getElementById('lightboxImg').src = car.images[state.currentGalleryImg];
+  document.getElementById('lightboxCounter').textContent = `${state.currentGalleryImg + 1} / ${car.images.length}`;
+}
+document.addEventListener('keydown', e => {
+  const lb = document.getElementById('lightboxOverlay');
+  if (!lb || lb.style.display === 'none') return;
+  if (e.key === 'ArrowLeft')  lightboxNav(-1);
+  if (e.key === 'ArrowRight') lightboxNav(1);
+  if (e.key === 'Escape')     closeLightbox();
+});
 
 function switchTab(tab) {
   state.detailTab = tab;
@@ -1111,7 +1182,7 @@ function renderCompare() {
     ['Engine', cars.map(c => c.engine)],
     ['Horsepower', cars.map(c => c.horsepower + ' HP')],
     ['Torque', cars.map(c => c.torque + ' lb-ft')],
-    ['Fuel Economy', cars.map(c => `${c.mpg.city}/${c.mpg.highway} ${c.mpg.unit || 'MPG'}`)],
+    ['Fuel Economy', cars.map(c => `${c.mpg.combined || 0} ${c.mpg.unit || 'MPG'}`)],
     ['Drivetrain', cars.map(c => c.drivetrain)],
     ['Transmission', cars.map(c => c.transmission)],
     ['Fuel Type', cars.map(c => c.fuel)],
@@ -1240,13 +1311,21 @@ function toggleMobileFilters() {
 
 /* ===== MODALS ===== */
 function openModal(id) {
-  document.getElementById(id).classList.add('open');
+  const el = document.getElementById(id);
+  el.classList.add('open');
   document.body.style.overflow = 'hidden';
+  const focusable = el.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex="-1"])');
+  if (focusable.length) focusable[0].focus();
 }
 function closeModal(id) {
   document.getElementById(id).classList.remove('open');
   document.body.style.overflow = '';
 }
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => closeModal(m.id));
+  }
+});
 
 function openContactModal() {
   const car = state.selectedCar;
@@ -1288,6 +1367,7 @@ function togglePXFilter(checked) {
 
 function updatePXFilters() {
   state.filters.pxMyMake = document.getElementById('pxMyMake')?.value.trim() || '';
+  state.filters.pxMyFuel = document.getElementById('pxMyFuel')?.value || '';
   state.filters.pxMyEngineL = parseFloat(document.getElementById('pxMyEngine')?.value) || 0;
   state.filters.pxMyYear = parseInt(document.getElementById('pxMyYear')?.value) || 0;
   state.page_num = 1;
@@ -1401,7 +1481,6 @@ document.addEventListener('DOMContentLoaded', () => {
   if (themeBtn) themeBtn.textContent = savedTheme === 'dark' ? '☀️' : '🌙';
 
   setupFilters();
-  renderHome();
   updateFavBadge();
   updateCompareTray();
   updateAuthUI();
@@ -1452,7 +1531,7 @@ function setHeroTab(el, tab) {
   if (tab === 'electric') {
     state.filters.isEV = true;
     state.filters.isHybrid = false;
-  } else if (tab === 'certified') {
+  } else if (tab === 'approved') {
     state.filters.condition = 'Used';
   } else if (tab === 'new') {
     state.filters.condition = 'New';
@@ -1476,8 +1555,8 @@ function filterNoAccident(checked) {
   renderBrowse();
 }
 
-function filterCarfax(checked) {
-  state.filters.carfax = checked;
+function filterHpiCheck(checked) {
+  state.filters.hpiCheck = checked;
   state.page_num = 1;
   renderBrowse();
 }
@@ -1518,6 +1597,21 @@ function addCurrentToCompare() {
   const car = state.selectedCar;
   if (!car) return;
   toggleCompare(car.id);
+}
+
+function shareListing() {
+  const car = state.selectedCar;
+  if (!car) return;
+  const text = `${car.year} ${car.make} ${car.model} — £${car.price.toLocaleString()} on AutoDrive`;
+  if (navigator.share) {
+    navigator.share({ title: text, url: window.location.href }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      toast('Link copied to clipboard!', 'success', '🔗');
+    }).catch(() => {
+      toast('Copy this URL to share: ' + window.location.href, 'info', '🔗');
+    });
+  }
 }
 
 function setView(v) {

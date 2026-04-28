@@ -4,6 +4,23 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AutoDrive — Find Your Perfect Car</title>
+
+  <!-- SEO -->
+  <meta name="description" content="AutoDrive is the UK's most modern car marketplace. Search new, used & approved used vehicles from thousands of trusted dealers nationwide.">
+  <meta name="theme-color" content="#3563E9">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="AutoDrive — Find Your Perfect Car">
+  <meta property="og:description" content="Search new, used & approved used vehicles from thousands of trusted UK dealers. Price history, HPI checks, part exchange & more.">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1200&q=80">
+  <meta property="og:url" content="https://skaisavi.github.io/autodrive">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="https://images.unsplash.com/photo-1555215695-3004980ad54e?w=192&q=80">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -19,51 +36,49 @@
 </div>
 
 <!-- HEADER -->
-<header class="header">
-  <div class="logo" onclick="navigate('home')">
-    <div class="logo-icon">🚗</div>
+<header class="header" role="banner">
+  <div class="logo" onclick="navigate('home')" role="link" tabindex="0" aria-label="AutoDrive home" onkeydown="if(event.key==='Enter')navigate('home')">
+    <div class="logo-icon" aria-hidden="true">🚗</div>
     Auto<span>Drive</span>
   </div>
 
-  <div class="header-search">
-    <span class="search-icon">🔍</span>
-    <input type="text" id="headerSearch" placeholder="Search make, model, year..." autocomplete="off">
-    <span class="search-clear" onclick="document.getElementById('headerSearch').value='';doSearch('')">✕</span>
+  <div class="header-search" role="search">
+    <span class="search-icon" aria-hidden="true">🔍</span>
+    <input type="text" id="headerSearch" placeholder="Search make, model, year..." autocomplete="off" aria-label="Search cars by make, model or year">
+    <span class="search-clear" onclick="document.getElementById('headerSearch').value='';doSearch('')" role="button" tabindex="0" aria-label="Clear search" onkeydown="if(event.key==='Enter'){document.getElementById('headerSearch').value='';doSearch('')}">✕</span>
   </div>
 
-  <nav class="header-nav" id="headerNav">
-    <a data-page="home" onclick="navigate('home')">Home</a>
-    <a data-page="browse" onclick="navigate('browse')">Browse</a>
-    <a data-page="compare" onclick="navigate('compare')">Compare</a>
-    <a data-page="favorites" onclick="navigate('favorites')">Saved</a>
-    <a data-page="account" id="accountNavLink" onclick="navigate('account')" style="display:none">My Account</a>
+  <nav class="header-nav" id="headerNav" role="navigation" aria-label="Main navigation">
+    <a data-page="home" onclick="navigate('home')" tabindex="0">Home</a>
+    <a data-page="browse" onclick="navigate('browse')" tabindex="0">Browse</a>
+    <a data-page="account" id="accountNavLink" onclick="navigate('account')" tabindex="0" style="display:none;pointer-events:none;width:0;overflow:hidden;padding:0;margin:0;opacity:0;position:absolute"></a>
   </nav>
 
-  <div class="header-actions">
-    <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
-    <button class="btn-icon" onclick="openModal('alertModal')" title="Set price alert">🔔</button>
-    <button class="btn-icon" onclick="navigate('compare')" title="Compare cars">
-      ⚖️<span class="badge" id="compareBadge" style="display:none">0</span>
+  <div class="header-actions" role="toolbar" aria-label="Header actions">
+    <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+    <button class="btn-icon" onclick="openModal('alertModal')" aria-label="Set price alert">🔔</button>
+    <button class="btn-icon" onclick="navigate('compare')" aria-label="Compare cars">
+      <span aria-hidden="true">⚖️</span><span class="badge" id="compareBadge" style="display:none" aria-label="items in compare">0</span>
     </button>
-    <button class="btn-icon" onclick="navigate('favorites')" title="Saved cars">
-      ❤️<span class="badge fav-badge" style="display:none">0</span>
+    <button class="btn-icon" onclick="navigate('favorites')" aria-label="Saved cars">
+      <span aria-hidden="true">❤️</span><span class="badge fav-badge" style="display:none" aria-label="saved cars">0</span>
     </button>
 
     <!-- Sell button (shown when logged in) -->
-    <button class="btn-sell" id="sellBtn" onclick="openModal('sellModal')" style="display:none" title="Post your car for sale">+ Sell</button>
+    <button class="btn-sell" id="sellBtn" onclick="openModal('sellModal')" style="display:none" aria-label="Post your car for sale">+ Sell</button>
 
     <!-- Sign in (logged out) -->
     <button class="btn-signin" id="signInBtn" onclick="openModal('loginModal')">Sign In</button>
 
     <!-- User menu (logged in) -->
     <div class="user-menu" id="userMenuBtn" style="display:none">
-      <button class="user-avatar-btn" onclick="toggleUserMenu()">
+      <button class="user-avatar-btn" onclick="toggleUserMenu()" aria-haspopup="true" aria-expanded="false" aria-label="User menu">
         <span class="user-initial" id="userInitial">U</span>
-        <span class="user-chevron">▾</span>
+        <span class="user-chevron" aria-hidden="true">▾</span>
       </button>
-      <div class="user-dropdown" id="userDropdown">
-        <div class="user-dropdown-item" onclick="navigate('account');toggleUserMenu()">👤 My Account</div>
-        <div class="user-dropdown-item" onclick="openModal('sellModal');toggleUserMenu()">🚗 Post a Car</div>
+      <div class="user-dropdown" id="userDropdown" role="menu">
+        <div class="user-dropdown-item" onclick="navigate('account');toggleUserMenu()" role="menuitem" tabindex="0">👤 My Account</div>
+        <div class="user-dropdown-item" onclick="openModal('sellModal');toggleUserMenu()" role="menuitem" tabindex="0">🚗 Post a Car</div>
         <div class="user-dropdown-item" onclick="navigate('favorites');toggleUserMenu()">❤️ Saved Cars</div>
         <div class="user-dropdown-divider"></div>
         <div class="user-dropdown-item danger" onclick="logout()">↩ Sign Out</div>
@@ -84,13 +99,13 @@
     <div class="hero-content">
       <div class="hero-tag">✨ Over 50,000 Vehicles Available</div>
       <h1>Find Your <span>Dream Car</span><br>Drive It Home Today</h1>
-      <p>Search new, used & certified pre-owned vehicles from thousands of dealers nationwide.</p>
+      <p>Search new, used & approved used vehicles from thousands of dealers nationwide.</p>
 
       <div class="hero-search">
         <div class="search-tabs">
           <div class="search-tab active" onclick="setHeroTab(this,'new')">New Cars</div>
           <div class="search-tab" onclick="setHeroTab(this,'used')">Used Cars</div>
-          <div class="search-tab" onclick="setHeroTab(this,'certified')">Certified Pre-Owned</div>
+          <div class="search-tab" onclick="setHeroTab(this,'approved')">Approved Used</div>
           <div class="search-tab" onclick="setHeroTab(this,'electric')">Electric</div>
         </div>
         <div class="search-fields">
@@ -104,9 +119,9 @@
             <label>Body Type</label>
             <select id="heroType">
               <option value="">Any Type</option>
-              <option>Sedan</option>
+              <option>Saloon</option>
               <option>SUV</option>
-              <option>Truck</option>
+              <option>Pick-up</option>
               <option>Coupe</option>
               <option>Hatchback</option>
               <option>Convertible</option>
@@ -168,7 +183,7 @@
         <div class="cat-pill" data-cat="Performance" onclick="goToBrowse('Performance')"><span>🏎️</span> Performance</div>
         <div class="cat-pill" data-cat="Electric" onclick="goToBrowse('Electric')"><span>⚡</span> Electric</div>
         <div class="cat-pill" data-cat="SUVs" onclick="goToBrowse('SUVs')"><span>🚙</span> SUVs</div>
-        <div class="cat-pill" data-cat="Trucks" onclick="goToBrowse('Trucks')"><span>🛻</span> Trucks</div>
+        <div class="cat-pill" data-cat="Pickups" onclick="goToBrowse('Pickups')"><span>🛻</span> Pickups</div>
         <div class="cat-pill" data-cat="Luxury" onclick="goToBrowse('Luxury')"><span>💎</span> Luxury</div>
       </div>
     </div>
@@ -262,7 +277,7 @@
         <div class="feature-highlight reveal">
           <div class="feature-icon-wrap">📋</div>
           <h3>Full History Reports</h3>
-          <p>Free CARFAX® reports with every listing so you know exactly what you're buying.</p>
+          <p>Free HPI Check reports with every listing so you know exactly what you're buying.</p>
         </div>
         <div class="feature-highlight reveal">
           <div class="feature-icon-wrap">⚖️</div>
@@ -397,7 +412,7 @@
         <div class="tradein-result" id="tradeResult">
           <div style="font-size:16px;font-weight:700;margin-bottom:4px">Your Estimated Trade-In Value</div>
           <div class="result-range" id="tradeRange">£0 – £0</div>
-          <p>This is a preliminary estimate. Visit a dealer for an exact appraisal and to apply toward your next purchase.</p>
+          <p>This is a preliminary estimate. Visit a dealer for an exact valuation and to apply toward your next purchase.</p>
         </div>
       </div>
     </div>
@@ -430,7 +445,7 @@
         <a onclick="goToBrowse('All')">All Vehicles</a>
         <a onclick="goToBrowse('Electric')">Electric Cars</a>
         <a onclick="goToBrowse('SUVs')">SUVs & Crossovers</a>
-        <a onclick="goToBrowse('Trucks')">Trucks</a>
+        <a onclick="goToBrowse('Pickups')">Pickups</a>
         <a onclick="goToBrowse('Luxury')">Luxury Cars</a>
         <a onclick="goToBrowse('Performance')">Sports & Performance</a>
       </div>
@@ -491,10 +506,10 @@
         <label>Body Type</label>
         <select class="filter-select" id="filterType">
           <option value="">All Types</option>
-          <option>Sedan</option>
+          <option>Saloon</option>
           <option>Coupe</option>
           <option>SUV</option>
-          <option>Truck</option>
+          <option>Pick-up</option>
           <option>Hatchback</option>
           <option>Convertible</option>
         </select>
@@ -568,8 +583,8 @@
             <span>✓ No Accidents</span>
           </label>
           <label class="checkbox-item">
-            <input type="checkbox" id="filterCarfax" onchange="filterCarfax(this.checked)">
-            <span>📋 CARFAX Available</span>
+            <input type="checkbox" id="filterHpiCheck" onchange="filterHpiCheck(this.checked)">
+            <span>📋 HPI Check Available</span>
           </label>
         </div>
       </div>
@@ -585,6 +600,17 @@
           <div class="px-row">
             <label>My Car's Make</label>
             <input type="text" id="pxMyMake" placeholder="e.g. Toyota" oninput="updatePXFilters()">
+          </div>
+          <div class="px-row">
+            <label>My Car's Fuel Type</label>
+            <select id="pxMyFuel" onchange="updatePXFilters()">
+              <option value="">Any Fuel</option>
+              <option>Petrol</option>
+              <option>Diesel</option>
+              <option>Electric</option>
+              <option>Hybrid</option>
+              <option>Mild Hybrid</option>
+            </select>
           </div>
           <div class="px-row">
             <label>My Engine Size (L)</label>
@@ -606,7 +632,7 @@
         <div class="cat-pill" data-cat="Performance" onclick="setCatFilter('Performance')"><span>🏎️</span> Performance</div>
         <div class="cat-pill" data-cat="Electric" onclick="setCatFilter('Electric')"><span>⚡</span> Electric</div>
         <div class="cat-pill" data-cat="SUVs" onclick="setCatFilter('SUVs')"><span>🚙</span> SUVs</div>
-        <div class="cat-pill" data-cat="Trucks" onclick="setCatFilter('Trucks')"><span>🛻</span> Trucks</div>
+        <div class="cat-pill" data-cat="Pickups" onclick="setCatFilter('Pickups')"><span>🛻</span> Pickups</div>
         <div class="cat-pill" data-cat="Luxury" onclick="setCatFilter('Luxury')"><span>💎</span> Luxury</div>
       </div>
 
@@ -670,9 +696,10 @@
       <!-- Gallery -->
       <div class="gallery">
         <div class="gallery-main">
-          <img id="galleryMain" src="" alt="Car">
-          <div class="gallery-prev" onclick="galleryNav(-1)">‹</div>
-          <div class="gallery-next" onclick="galleryNav(1)">›</div>
+          <img id="galleryMain" src="" alt="Car" onclick="openLightbox()" style="cursor:zoom-in" title="Click to enlarge">
+          <div class="gallery-prev" onclick="galleryNav(-1)" aria-label="Previous image">‹</div>
+          <div class="gallery-next" onclick="galleryNav(1)" aria-label="Next image">›</div>
+          <div style="position:absolute;bottom:10px;right:12px;background:rgba(0,0,0,0.5);color:#fff;font-size:11px;padding:3px 8px;border-radius:999px;pointer-events:none;">🔍 Click to enlarge</div>
         </div>
         <div class="gallery-thumbs" id="galleryThumbs"></div>
       </div>
@@ -728,6 +755,9 @@
         </button>
         <button class="btn-cta-outline" onclick="addCurrentToCompare()">
           ⚖️ Add to Compare
+        </button>
+        <button class="btn-cta-outline" onclick="shareListing()" id="shareBtn" aria-label="Share this listing">
+          🔗 Share Listing
         </button>
 
         <div class="dealer-card">
@@ -814,7 +844,7 @@
 <!-- ===================== MODALS ===================== -->
 
 <!-- Contact Modal -->
-<div class="modal-overlay" id="contactModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="contactModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('contactModal')">✕</button>
     <h2>📧 Contact Dealer</h2>
@@ -840,7 +870,7 @@
 </div>
 
 <!-- Alert Modal -->
-<div class="modal-overlay" id="alertModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="alertModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('alertModal')">✕</button>
     <h2>🔔 Set Price Alert</h2>
@@ -868,7 +898,7 @@
 </div>
 
 <!-- Test Drive Modal -->
-<div class="modal-overlay" id="testDriveModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="testDriveModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('testDriveModal')">✕</button>
     <h2>🚗 Schedule Test Drive</h2>
@@ -908,7 +938,7 @@
 </div>
 
 <!-- LOGIN MODAL -->
-<div class="modal-overlay" id="loginModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="loginModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('loginModal')">✕</button>
     <div class="auth-modal-header">
@@ -931,7 +961,7 @@
 </div>
 
 <!-- REGISTER MODAL -->
-<div class="modal-overlay" id="registerModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="registerModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('registerModal')">✕</button>
     <div class="auth-modal-header">
@@ -962,7 +992,7 @@
 </div>
 
 <!-- SELL CAR MODAL -->
-<div class="modal-overlay" id="sellModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="sellModal">
   <div class="modal modal-wide">
     <button class="modal-close" onclick="closeModal('sellModal')">✕</button>
     <input type="hidden" id="sellEditId" value="">
@@ -993,8 +1023,8 @@
         <label>Body Type <span style="color:var(--danger)">*</span></label>
         <select id="sellType">
           <option value="">Select type</option>
-          <option>Sedan</option><option>SUV</option><option>Hatchback</option>
-          <option>Coupe</option><option>Convertible</option><option>Truck</option><option>Van</option>
+          <option>Saloon</option><option>SUV</option><option>Hatchback</option>
+          <option>Coupe</option><option>Convertible</option><option>Pick-up</option><option>Van</option>
         </select>
       </div>
       <div class="form-field">
@@ -1013,7 +1043,7 @@
       <div class="form-field">
         <label>Condition</label>
         <select id="sellCondition">
-          <option>Used</option><option>New</option><option>Certified</option>
+          <option>Used</option><option>New</option><option>Approved Used</option>
         </select>
       </div>
       <div class="form-field">
@@ -1053,6 +1083,10 @@
           <label>Accepted Makes <span style="color:var(--text-muted);font-weight:400;font-size:12px">(comma-separated, or "Any")</span></label>
           <input type="text" id="sellPXMakes" placeholder="e.g. BMW, Toyota — or: Any">
         </div>
+        <div class="form-field" style="margin:0">
+          <label>Accepted Fuel Types <span style="color:var(--text-muted);font-weight:400;font-size:12px">(comma-separated, or "Any")</span></label>
+          <input type="text" id="sellPXFuels" placeholder="e.g. Petrol, Hybrid — or: Any">
+        </div>
         <div class="sell-form" style="margin:0">
           <div class="form-field" style="margin:0">
             <label>Min Engine Size (L)</label>
@@ -1071,7 +1105,7 @@
 </div>
 
 <!-- VIN DECODER MODAL -->
-<div class="modal-overlay" id="vinModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="vinModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('vinModal')">✕</button>
     <h2>🔎 VIN Decoder</h2>
@@ -1086,7 +1120,7 @@
 </div>
 
 <!-- FINANCING PRE-APPROVAL MODAL -->
-<div class="modal-overlay" id="financingModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="financingModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('financingModal')">✕</button>
     <h2>🏦 Financing Pre-Approval</h2>
@@ -1127,7 +1161,7 @@
 </div>
 
 <!-- ABOUT MODAL -->
-<div class="modal-overlay" id="aboutModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="aboutModal">
   <div class="modal">
     <button class="modal-close" onclick="closeModal('aboutModal')">✕</button>
     <h2>🚗 About AutoDrive</h2>
@@ -1155,7 +1189,7 @@
 </div>
 
 <!-- PRIVACY POLICY MODAL -->
-<div class="modal-overlay" id="privacyModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="privacyModal">
   <div class="modal" style="max-height:80vh;overflow-y:auto">
     <button class="modal-close" onclick="closeModal('privacyModal')">✕</button>
     <h2>🔒 Privacy Policy</h2>
@@ -1171,7 +1205,7 @@
 </div>
 
 <!-- TERMS OF SERVICE MODAL -->
-<div class="modal-overlay" id="termsModal">
+<div class="modal-overlay" role="dialog" aria-modal="true" id="termsModal">
   <div class="modal" style="max-height:80vh;overflow-y:auto">
     <button class="modal-close" onclick="closeModal('termsModal')">✕</button>
     <h2>📄 Terms of Service</h2>
@@ -1202,8 +1236,8 @@
 <div class="toast-container" id="toastContainer"></div>
 
 <!-- ===================== SCRIPTS ===================== -->
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="data.js?v=5"></script>
+<script src="app.js?v=5"></script>
 <script>
 /* Extra helpers not in app.js */
 
@@ -1218,7 +1252,7 @@ function setHeroTab(el, type) {
   } else if (type === 'used') {
     state.filters.condition = 'Used';
     state.filters.fuel = '';
-  } else if (type === 'certified') {
+  } else if (type === 'approved') {
     state.filters.condition = 'Used';
   }
 }
@@ -1272,8 +1306,8 @@ function filterNoAccident(checked) {
   renderBrowse();
 }
 
-function filterCarfax(checked) {
-  state.filters._carfax = checked;
+function filterHpiCheck(checked) {
+  state.filters.hpiCheck = checked;
   state.page_num = 1;
   renderBrowse();
 }
@@ -1329,6 +1363,15 @@ document.addEventListener('DOMContentLoaded', () => {
   if (pf) { pf.style.left = '0'; pf.style.right = '0'; pf.style.background = 'var(--primary)'; }
 });
 </script>
+
+<!-- LIGHTBOX -->
+<div id="lightboxOverlay" role="dialog" aria-modal="true" aria-label="Image lightbox" style="display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.92);display:none;align-items:center;justify-content:center;flex-direction:column;" onclick="closeLightbox()">
+  <button onclick="event.stopPropagation();closeLightbox()" aria-label="Close lightbox" style="position:absolute;top:16px;right:20px;background:none;border:none;color:#fff;font-size:28px;cursor:pointer;line-height:1;">✕</button>
+  <button onclick="event.stopPropagation();lightboxNav(-1)" aria-label="Previous image" style="position:absolute;left:16px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:32px;cursor:pointer;padding:10px 16px;border-radius:8px;line-height:1;">‹</button>
+  <button onclick="event.stopPropagation();lightboxNav(1)" aria-label="Next image" style="position:absolute;right:16px;background:rgba(255,255,255,0.15);border:none;color:#fff;font-size:32px;cursor:pointer;padding:10px 16px;border-radius:8px;line-height:1;">›</button>
+  <img id="lightboxImg" src="" alt="Car full view" style="max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px;" onclick="event.stopPropagation()">
+  <div id="lightboxCounter" style="color:rgba(255,255,255,0.6);font-size:13px;margin-top:12px;"></div>
+</div>
 
 </body>
 </html>

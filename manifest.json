@@ -1,0 +1,21 @@
+{
+  "name": "AutoDrive",
+  "short_name": "AutoDrive",
+  "description": "The UK's most modern car marketplace",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3563E9",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=192&q=80",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=512&q=80",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}

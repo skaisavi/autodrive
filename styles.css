@@ -721,6 +721,25 @@ input, select, textarea { font-family: var(--font); }
   outline: none;
   border-color: var(--warning);
 }
+.px-filter-wrap .px-row select {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 13px;
+  box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color var(--transition);
+}
+.px-filter-wrap .px-row select:focus {
+  outline: none;
+  border-color: var(--warning);
+}
 
 /* ===== PX SELL SECTION ===== */
 .px-sell-panel {
@@ -1798,7 +1817,11 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   grid-template-columns: 1fr 1fr;
   gap: 0 16px;
 }
-@media (max-width: 600px) { .sell-form { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  .sell-form { grid-template-columns: 1fr; }
+  .modal { padding: 20px 16px; border-radius: var(--radius); }
+  .modal-wide { max-width: 100%; }
+}
 
 /* Private seller badge */
 .badge-private {
@@ -2208,6 +2231,31 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ===== SKELETON LOADING ===== */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-input) 25%, var(--border) 50%, var(--bg-input) 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s infinite linear;
+  border-radius: var(--radius-sm);
+}
+.skeleton-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+.skeleton-img  { height: 200px; width: 100%; }
+.skeleton-body { padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.skeleton-line { height: 14px; }
+.skeleton-line.wide  { width: 75%; }
+.skeleton-line.full  { width: 100%; }
+.skeleton-line.short { width: 45%; }
+.skeleton-price { height: 22px; width: 55%; margin-top: 4px; }
 
 /* ===== NO RESULTS ===== */
 .no-results {
