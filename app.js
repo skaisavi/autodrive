@@ -1,3 +1,20 @@
+/* ===== PLACEHOLDER IMAGE ===== */
+function carImgPlaceholder(make, model) {
+  const label = ((make || 'Car') + (model ? ' ' + model : '')).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500">`
+    + `<rect width="800" height="500" fill="#1a2550"/>`
+    + `<rect width="800" height="2" y="499" fill="#2563eb" opacity="0.6"/>`
+    + `<path d="M160 300 Q205 255 285 250 L325 205 Q362 182 400 182 Q438 182 475 205 L515 250 Q595 255 640 300 L652 332 Q642 350 618 350 L582 350 Q576 372 555 372 Q534 372 528 350 L272 350 Q266 372 245 372 Q224 372 218 350 L182 350 Q158 350 148 332 Z" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.18"/>`
+    + `<circle cx="245" cy="354" r="24" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.18"/>`
+    + `<circle cx="555" cy="354" r="24" fill="none" stroke="#ffffff" stroke-width="2.5" opacity="0.18"/>`
+    + `<circle cx="245" cy="354" r="10" fill="#ffffff" opacity="0.08"/>`
+    + `<circle cx="555" cy="354" r="10" fill="#ffffff" opacity="0.08"/>`
+    + `<text x="400" y="418" font-family="system-ui,Arial,sans-serif" font-size="27" fill="#ffffff" fill-opacity="0.92" text-anchor="middle" font-weight="700" letter-spacing="0.5">${label}</text>`
+    + `<text x="400" y="446" font-family="system-ui,Arial,sans-serif" font-size="13" fill="#ffffff" fill-opacity="0.38" text-anchor="middle" letter-spacing="1">NO IMAGE PROVIDED</text>`
+    + `</svg>`;
+  return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+}
+
 /* ===== ACCOUNT SYSTEM ===== */
 const getAccounts    = () => JSON.parse(localStorage.getItem('ad_accounts') || '[]');
 const saveAccounts   = (a) => localStorage.setItem('ad_accounts', JSON.stringify(a));
@@ -183,7 +200,7 @@ function postListing() {
   const description = get('sellDescription') || '';
   const imageUrl    = get('sellImage') || '';
   const catMap      = { SUV:'SUVs', Truck:'Trucks', Coupe:'Performance', Sedan:'All', Hatchback:'All', Convertible:'All', Van:'All' };
-  const img         = imageUrl || `https://placehold.co/800x500/1a2550/ffffff?text=${encodeURIComponent(make+' '+model)}`;
+  const img         = imageUrl || carImgPlaceholder(make, model);
   const car = {
     id: 100000 + (Date.now() % 100000),
     make, model, year, price, mileage, type, fuel, transmission, condition, color,
@@ -285,7 +302,7 @@ function renderAccountPage() {
             <div class="car-card reveal" onclick="openCar(${car.id})">
               <div class="car-img-wrap">
                 <span class="card-badge badge-private">Private Seller</span>
-                <img src="${car.image}" alt="${car.make} ${car.model}" loading="lazy" onerror="this.src='https://placehold.co/800x500/1a2550/fff?text=${car.make}'">
+                <img src="${car.image || carImgPlaceholder(car.make, car.model)}" alt="${car.make} ${car.model}" loading="lazy" onerror="this.src=carImgPlaceholder('${car.make}','${car.model}')">
               </div>
               <div class="car-body">
                 <div class="car-title">${car.year} ${car.make} ${car.model}</div>
@@ -517,7 +534,7 @@ function carCardHTML(car, listView = false) {
     return `<div class="car-card-list" onclick="openCar(${car.id})">
       <div class="car-card-img">
         <span class="card-badge ${getBadgeClass(car.badge)}">${car.badge}</span>
-        <img src="${car.image}" alt="${car.make} ${car.model}" loading="lazy" onerror="this.src='https://placehold.co/260x160/1a2550/fff?text=${car.make}'">
+        <img src="${car.image || carImgPlaceholder(car.make, car.model)}" alt="${car.make} ${car.model}" loading="lazy" onerror="this.src=carImgPlaceholder('${car.make}','${car.model}')">
       </div>
       <div class="car-card-body">
         <div class="car-title">${car.year} ${car.make} ${car.model} ${evTag} ${pxTag}</div>
@@ -551,7 +568,7 @@ function carCardHTML(car, listView = false) {
       <span class="card-badge ${getBadgeClass(car.badge)}">${car.badge}</span>
       <button class="card-fav ${favClass}" data-id="${car.id}" onclick="event.stopPropagation();toggleFav(${car.id})">${favIcon}</button>
       <button class="card-compare ${cmpClass}" data-id="${car.id}" onclick="event.stopPropagation();toggleCompare(${car.id})">${cmpText}</button>
-      <img src="${car.image}" alt="${car.make} ${car.model}" loading="lazy" onerror="this.src='https://placehold.co/800x600/1a2550/fff?text=${car.make}'">
+      <img src="${car.image || carImgPlaceholder(car.make, car.model)}" alt="${car.make} ${car.model}" loading="lazy" onerror="this.src=carImgPlaceholder('${car.make}','${car.model}')">
     </div>
     <div class="car-card-body">
       <div class="car-title">${car.year} ${car.make} ${car.model} ${evTag} ${pxTag}</div>
@@ -799,7 +816,7 @@ function renderDetail(car) {
   // Gallery
   const mainImg = document.getElementById('galleryMain');
   mainImg.src = car.images[0];
-  mainImg.onerror = () => mainImg.src = `https://placehold.co/800x400/1a2550/fff?text=${car.make}`;
+  mainImg.onerror = () => mainImg.src = carImgPlaceholder(car.make, car.model);
   const thumbsEl = document.getElementById('galleryThumbs');
   thumbsEl.innerHTML = car.images.map((img, i) =>
     `<div class="gallery-thumb ${i === 0 ? 'active' : ''}" onclick="setGalleryImg(${i})">
