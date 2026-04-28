@@ -881,24 +881,24 @@ function renderDetail(car) {
         px.minEngineL ? { label: 'Min engine size', val: px.minEngineL + 'L+' }   : null,
         px.minYear    ? { label: 'Min year',        val: px.minYear + ' or newer' } : null,
       ].filter(Boolean);
-      const rowsHTML = reqs.length ? reqs.map(r => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:13px;border-bottom:1px solid rgba(245,158,11,0.12);">
-          <span style="color:#6B7280">${r.label}</span>
-          <strong style="color:#1A202C;font-weight:600">${r.val}</strong>
+      const rowsHTML = reqs.length ? reqs.map((r, i, arr) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 13px;font-size:13px;${i < arr.length - 1 ? 'border-bottom:1px solid rgba(245,158,11,0.14);' : ''}">
+          <span style="color:var(--text-muted)">${r.label}</span>
+          <strong style="color:var(--text);font-weight:600">${r.val}</strong>
         </div>`).join('') : '';
       pxEl.innerHTML = `
         <div style="margin-top:12px;border-radius:12px;overflow:hidden;border:1px solid rgba(245,158,11,0.3);background:rgba(245,158,11,0.06);">
-          <div style="padding:12px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(245,158,11,0.15);">
-            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,0.15);color:#D97706;border:1px solid rgba(245,158,11,0.3);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.3px;">🔄 Part Exchange Welcome</span>
+          <div style="padding:11px 14px;border-bottom:1px solid rgba(245,158,11,0.15);">
+            <span style="display:inline-flex;align-items:center;gap:5px;background:rgba(245,158,11,0.18);color:#D97706;border:1px solid rgba(245,158,11,0.32);padding:4px 12px;border-radius:999px;font-size:12px;font-weight:700;letter-spacing:0.3px;">🔄 Part Exchange Welcome</span>
           </div>
-          <div style="padding:10px 14px 4px;font-size:13px;color:#6B7280;">This seller is open to a part exchange on your current car.</div>
-          ${rowsHTML ? `<div style="margin:8px 0 0;">${rowsHTML}</div>` : `<div style="padding:4px 14px 12px;font-size:13px;color:#6B7280;font-style:italic;">Accepting any make, age, or engine size.</div>`}
+          <div style="padding:10px 14px 6px;font-size:13px;color:var(--text-muted);line-height:1.5;">This seller is open to a part exchange on your current car.</div>
+          ${rowsHTML ? `<div>${rowsHTML}</div>` : `<div style="padding:2px 14px 12px;font-size:13px;color:var(--text-muted);font-style:italic;">Accepting any make, age, or engine size.</div>`}
         </div>`;
     } else {
       pxEl.innerHTML = `
-        <div style="margin-top:12px;border-radius:10px;background:#F6F7F9;border:1px solid #E8ECF0;padding:10px 14px;display:flex;align-items:center;gap:8px;">
-          <span style="font-size:15px;">🚫</span>
-          <span style="font-size:13px;font-weight:600;color:#6B7280;">Not accepting part exchanges</span>
+        <div style="margin-top:12px;border-radius:10px;background:var(--bg-input);border:1px solid var(--border);padding:10px 14px;display:flex;align-items:center;gap:8px;">
+          <span style="font-size:15px;opacity:0.7">🚫</span>
+          <span style="font-size:13px;font-weight:600;color:var(--text-muted);">Not accepting part exchanges</span>
         </div>`;
     }
   }
