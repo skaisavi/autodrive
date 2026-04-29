@@ -56,8 +56,8 @@
 
   <div class="header-actions" role="toolbar" aria-label="Header actions">
     <button class="btn-icon" id="themeBtn" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
-    <button class="btn-icon" onclick="openModal('alertModal')" aria-label="Set price alert">🔔</button>
-    <button class="btn-icon" onclick="navigate('compare')" aria-label="Compare cars">
+    <button class="btn-icon" id="headerAlertBtn" onclick="openModal('alertModal')" aria-label="Set price alert">🔔</button>
+    <button class="btn-icon" id="headerCompareBtn" onclick="navigate('compare')" aria-label="Compare cars">
       <span aria-hidden="true">⚖️</span><span class="badge" id="compareBadge" style="display:none" aria-label="items in compare">0</span>
     </button>
     <button class="btn-icon" onclick="navigate('favorites')" aria-label="Saved cars">
