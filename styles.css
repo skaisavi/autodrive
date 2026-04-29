@@ -61,7 +61,7 @@
   --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
 }
 
-html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; overflow-x: clip; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 body {
   font-family: var(--font);
