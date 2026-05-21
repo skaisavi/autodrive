@@ -2,8 +2,6 @@
 
 A modern UK car marketplace single-page application built with vanilla HTML, CSS, and JavaScript — no frameworks, no build tools.
 
-![AutoDrive Screenshot](https://images.unsplash.com/photo-1555215695-3004980ad54e?w=1200&q=80)
-
 ## Live Demo
 
 [View on GitHub Pages](https://skaisavi.github.io/autodrive)
